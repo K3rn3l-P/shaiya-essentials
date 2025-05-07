@@ -13,44 +13,52 @@
   <ItemGroup>
     <ClInclude Include="include\main.h" />
     <ClInclude Include="include\shaiya\common.h" />
-    <ClInclude Include="include\shaiya\include\Attribute.h" />
-    <ClInclude Include="include\shaiya\include\AuthStatus.h" />
-    <ClInclude Include="include\shaiya\include\BillingItem.h" />
+    <ClInclude Include="include\shaiya\include\BillingItemInfo.h" />
+    <ClInclude Include="include\shaiya\include\CAniListData.h" />
     <ClInclude Include="include\shaiya\include\CCharacterChat.h" />
     <ClInclude Include="include\shaiya\include\CDataFile.h" />
-    <ClInclude Include="include\shaiya\include\ChatType.h" />
+    <ClInclude Include="include\shaiya\include\CEffectData.h" />
+    <ClInclude Include="include\shaiya\include\CEffectModel.h" />
+    <ClInclude Include="include\shaiya\include\CEffectModelList.h" />
+    <ClInclude Include="include\shaiya\include\CInput.h" />
+    <ClInclude Include="include\shaiya\include\CMap.h" />
     <ClInclude Include="include\shaiya\include\CMonster.h" />
-    <ClInclude Include="include\shaiya\include\Country.h" />
+    <ClInclude Include="include\shaiya\include\CMonsterData.h" />
+    <ClInclude Include="include\shaiya\include\CNpc.h" />
+    <ClInclude Include="include\shaiya\include\CObjectData.h" />
+    <ClInclude Include="include\shaiya\include\CParticleData.h" />
     <ClInclude Include="include\shaiya\include\CPlayerData.h" />
+    <ClInclude Include="include\shaiya\include\CQuickPotionSlot.h" />
     <ClInclude Include="include\shaiya\include\CQuickSlot.h" />
-    <ClInclude Include="include\shaiya\include\CraftName.h" />
     <ClInclude Include="include\shaiya\include\CStaticText.h" />
     <ClInclude Include="include\shaiya\include\CTexture.h" />
+    <ClInclude Include="include\shaiya\include\CTextureList.h" />
+    <ClInclude Include="include\shaiya\include\CUnionPartyInfo.h" />
+    <ClInclude Include="include\shaiya\include\CVector.h" />
     <ClInclude Include="include\shaiya\include\CWindow.h" />
-    <ClInclude Include="include\shaiya\include\Family.h" />
-    <ClInclude Include="include\shaiya\include\Gems.h" />
-    <ClInclude Include="include\shaiya\include\Grow.h" />
+    <ClInclude Include="include\shaiya\include\ExcItem.h" />
+    <ClInclude Include="include\shaiya\include\GuildData2.h" />
+    <ClInclude Include="include\shaiya\include\GuildUserData.h" />
     <ClInclude Include="include\shaiya\include\HexColor.h" />
     <ClInclude Include="include\shaiya\include\CCharacter.h" />
     <ClInclude Include="include\shaiya\include\CItem.h" />
     <ClInclude Include="include\shaiya\include\CNetwork.h" />
     <ClInclude Include="include\shaiya\include\CWorldMgr.h" />
     <ClInclude Include="include\shaiya\include\ItemInfo.h" />
-    <ClInclude Include="include\shaiya\include\Job.h" />
     <ClInclude Include="include\shaiya\include\MobInfo.h" />
-    <ClInclude Include="include\shaiya\include\MotionType.h" />
-    <ClInclude Include="include\shaiya\include\NpcType.h" />
-    <ClInclude Include="include\shaiya\include\PartyType.h" />
-    <ClInclude Include="include\shaiya\include\Sex.h" />
-    <ClInclude Include="include\shaiya\include\ShapeType.h" />
+    <ClInclude Include="include\shaiya\include\SIMM.h" />
     <ClInclude Include="include\shaiya\include\SkillInfo.h" />
+    <ClInclude Include="include\shaiya\include\STextIME.h" />
     <ClInclude Include="include\shaiya\include\TargetType.h" />
     <ClInclude Include="include\shaiya\include\Unknown.h" />
+    <ClInclude Include="include\shaiya\include\WindowType.h" />
     <ClInclude Include="include\static.h" />
     <ClInclude Include="resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="include\shaiya\src\CCharacter.cpp" />
     <ClCompile Include="include\shaiya\src\CDataFile.cpp" />
+    <ClCompile Include="include\shaiya\src\CEffectData.cpp" />
     <ClCompile Include="include\shaiya\src\CMonster.cpp" />
     <ClCompile Include="include\shaiya\src\CNetwork.cpp" />
     <ClCompile Include="include\shaiya\src\CQuickSlot.cpp" />
@@ -130,7 +138,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;SDEVCLIENT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;_DEBUG;SDEVCLIENT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -155,7 +163,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;SDEVCLIENT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32;NDEBUG;SDEVCLIENT_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

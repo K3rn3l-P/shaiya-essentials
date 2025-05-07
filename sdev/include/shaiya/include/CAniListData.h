@@ -4,9 +4,12 @@
 namespace shaiya
 {
     #pragma pack(push, 1)
-    struct CNetwork
+    struct CAniListData
     {
-        static void Send(void* buffer, int length);
+        PAD(32);
+        // 0x20
     };
     #pragma pack(pop)
+
+    static_assert(sizeof(CAniListData) == 0x20);
 }

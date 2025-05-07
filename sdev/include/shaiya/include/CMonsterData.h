@@ -4,9 +4,12 @@
 namespace shaiya
 {
     #pragma pack(push, 1)
-    struct CNetwork
+    struct CMonsterData
     {
-        static void Send(void* buffer, int length);
+        PAD(20);
+        // 0x14
     };
     #pragma pack(pop)
+
+    static_assert(sizeof(CMonsterData) == 0x14);
 }

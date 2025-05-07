@@ -4,9 +4,12 @@
 namespace shaiya
 {
     #pragma pack(push, 1)
-    struct CNetwork
+    template<class T>
+    struct CVector
     {
-        static void Send(void* buffer, int length);
+        PAD(24);
     };
     #pragma pack(pop)
+
+    static_assert(sizeof(CVector<void>) == 0x18);
 }
