@@ -3,8 +3,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 #include <util/util.h>
 #include "include/main.h"
 #include "include/static.h"
