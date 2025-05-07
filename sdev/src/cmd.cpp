@@ -1,27 +1,25 @@
-#include <sstream>
 #include <string>
 #include <vector>
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 #include <util/util.h>
+#include <util/ini/ini.h>
+#include <util/string/string.hpp>
 #include "include/main.h"
 #include "include/static.h"
 using namespace shaiya;
 
 void load_advanced_config()
 {
-    std::string str(MAX_PATH, 0);
-    GetPrivateProfileStringA("ADVANCED", "COSTUMES", "TRUE", str.data(), str.size(), g_var->iniFileName.data());
-    g_showCostumes = str.compare(0, 4, "TRUE") == 0 ? true : false;
+    auto value = util::ini::get_value(L"ADVANCED", L"COSTUMES", L"TRUE", g_var->iniFileName.data());
+    g_showCostumes = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
 
-    GetPrivateProfileStringA("ADVANCED", "WINGS", "TRUE", str.data(), str.size(), g_var->iniFileName.data());
-    g_showWings = str.compare(0, 4, "TRUE") == 0 ? true : false;
+    value = util::ini::get_value(L"ADVANCED", L"WINGS", L"TRUE", g_var->iniFileName.data());
+    g_showWings = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
 
-    GetPrivateProfileStringA("ADVANCED", "EFFECTS", "TRUE", str.data(), str.size(), g_var->iniFileName.data());
-    g_showEffects = str.compare(0, 4, "TRUE") == 0 ? true : false;
+    value = util::ini::get_value(L"ADVANCED", L"EFFECTS", L"TRUE", g_var->iniFileName.data());
+    g_showEffects = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
 
-    GetPrivateProfileStringA("ADVANCED", "PETS", "TRUE", str.data(), str.size(), g_var->iniFileName.data());
-    g_showPets = str.compare(0, 4, "TRUE") == 0 ? true : false;
+    value = util::ini::get_value(L"ADVANCED", L"PETS", L"TRUE", g_var->iniFileName.data());
+    g_showPets = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
     g_showMobEffects = g_showPets;
 }
 
@@ -31,12 +29,12 @@ int command_handler(char* text)
     if (!input.starts_with('/'))
         return 1;
 
-    auto argv = util::split(input, ' ');
+    auto argv = util::string::split(input, ' ');
     auto argc = argv.size();
 
     if (!argc)
     {
-        Static::SysMsgTextOut(31, 253, 12);
+        Static::MsgTextOut(31, 253, 12);
         return 0;
     }
 
@@ -44,7 +42,7 @@ int command_handler(char* text)
     {
         g_showEffects = true;
         g_showMobEffects = true;
-        WritePrivateProfileStringA("ADVANCED", "EFFECTS", "TRUE", g_var->iniFileName.data());
+        util::ini::set_value(L"ADVANCED", L"EFFECTS", L"TRUE", g_var->iniFileName.data());
         return 0;
     }
 
@@ -52,7 +50,7 @@ int command_handler(char* text)
     {
         g_showEffects = false;
         g_showMobEffects = false;
-        WritePrivateProfileStringA("ADVANCED", "EFFECTS", "FALSE", g_var->iniFileName.data());
+        util::ini::set_value(L"ADVANCED", L"EFFECTS", L"FALSE", g_var->iniFileName.data());
         return 0;
     }
 
@@ -60,7 +58,7 @@ int command_handler(char* text)
     {
         g_showMobEffects = true;
         g_showPets = true;
-        WritePrivateProfileStringA("ADVANCED", "PETS", "TRUE", g_var->iniFileName.data());
+        util::ini::set_value(L"ADVANCED", L"PETS", L"TRUE", g_var->iniFileName.data());
         return 0;
     }
 
@@ -68,35 +66,35 @@ int command_handler(char* text)
     {
         g_showMobEffects = false;
         g_showPets = false;
-        WritePrivateProfileStringA("ADVANCED", "PETS", "FALSE", g_var->iniFileName.data());
+        util::ini::set_value(L"ADVANCED", L"PETS", L"FALSE", g_var->iniFileName.data());
         return 0;
     }
 
     if (input == "/wings on")
     {
         g_showWings = true;
-        WritePrivateProfileStringA("ADVANCED", "WINGS", "TRUE", g_var->iniFileName.data());
+        util::ini::set_value(L"ADVANCED", L"WINGS", L"TRUE", g_var->iniFileName.data());
         return 0;
     }
 
     if (input == "/wings off")
     {
         g_showWings = false;
-        WritePrivateProfileStringA("ADVANCED", "WINGS", "FALSE", g_var->iniFileName.data());
+        util::ini::set_value(L"ADVANCED", L"WINGS", L"FALSE", g_var->iniFileName.data());
         return 0;
     }
 
     if (input == "/costumes on")
     {
         g_showCostumes = true;
-        WritePrivateProfileStringA("ADVANCED", "COSTUMES", "TRUE", g_var->iniFileName.data());
+        util::ini::set_value(L"ADVANCED", L"COSTUMES", L"TRUE", g_var->iniFileName.data());
         return 0;
     }
 
     if (input == "/costumes off")
     {
         g_showCostumes = false;
-        WritePrivateProfileStringA("ADVANCED", "COSTUMES", "FALSE", g_var->iniFileName.data());
+        util::ini::set_value(L"ADVANCED", L"COSTUMES", L"FALSE", g_var->iniFileName.data());
         return 0;
     }
 

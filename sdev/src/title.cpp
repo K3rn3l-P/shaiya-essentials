@@ -13,6 +13,8 @@ using namespace shaiya;
 
 namespace title
 {
+    using ItemId = uint32_t;
+
     std::map<ItemId, std::tuple<const char*, HexColor>> items
     {
         { 24028, { "Champion of Teos", HexColor::Red } },

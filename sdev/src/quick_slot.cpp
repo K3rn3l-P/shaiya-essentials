@@ -1,9 +1,8 @@
-#include <array>
 #include <format>
 #include <string>
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 #include <util/util.h>
+#include <util/ini/ini.h>
+#include <util/string/string.hpp>
 #include "include/main.h"
 #include "include/static.h"
 #include "include/shaiya/include/CQuickSlot.h"
@@ -14,36 +13,35 @@ namespace quick_slot
 {
     void get_configuration(Unknown* unknown)
     {
-        auto section = std::format("INTERFACE_{}X{}", g_var->viewport.Width, g_var->viewport.Height);
-        auto x = GetPrivateProfileIntA(section.c_str(), "QUICKSLOT3_POS_X", 0, g_var->iniFileName.data());
-        auto y = GetPrivateProfileIntA(section.c_str(), "QUICKSLOT3_POS_Y", 0, g_var->iniFileName.data());
+        auto section = std::format(L"INTERFACE_{}X{}", g_var->viewport.Width, g_var->viewport.Height);
+        auto x = util::ini::get_value(section.c_str(), L"QUICKSLOT3_POS_X", 0, g_var->iniFileName.data());
+        auto y = util::ini::get_value(section.c_str(), L"QUICKSLOT3_POS_Y", 0, g_var->iniFileName.data());
 
-        g_pQuickSlot3->window.pos.x = x;
-        g_pQuickSlot3->window.pos.y = y;
+        g_pQuickSlot3->pos.x = x;
+        g_pQuickSlot3->pos.y = y;
 
-        std::string str(MAX_PATH, 0);
-        GetPrivateProfileStringA(section.c_str(), "QUICKSLOTPLUS_PLUS", "", str.data(), str.size(), g_var->iniFileName.data());
-        unknown->quickSlot2->plus = str.compare(0, 5, "FALSE") == 0 ? false : true;
-        CTexture::CreateFromFile(&unknown->quickSlot2->plusTexture, "data/interface", "main_slot_plus.tga", 32, 64);
+        auto value = util::ini::get_value(section.c_str(), L"QUICKSLOTPLUS_PLUS", L"", g_var->iniFileName.data());
+        unknown->quickSlot2->plus = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
+        CTexture::CreateFromFile(&unknown->quickSlot2->plusImage, "data/interface", "main_slot_plus.tga", 32, 64);
     }
 
     void set_configuration(CQuickSlot* quickSlot)
     {
-        auto section = std::format("INTERFACE_{}X{}", g_var->viewport.Width, g_var->viewport.Height);
+        auto section = std::format(L"INTERFACE_{}X{}", g_var->viewport.Width, g_var->viewport.Height);
 
         if (quickSlot->id == 1)
         {
-            std::string value = quickSlot->plus ? "TRUE" : "FALSE";
-            WritePrivateProfileStringA(section.c_str(), "QUICKSLOTPLUS_PLUS", value.c_str(), g_var->iniFileName.data());
+            std::wstring value = quickSlot->plus ? L"TRUE" : L"FALSE";
+            util::ini::set_value(section.c_str(), L"QUICKSLOTPLUS_PLUS", value.c_str(), g_var->iniFileName.data());
         }
         
         if (quickSlot->id == 2)
         {
-            auto x = std::to_string(g_pQuickSlot3->window.pos.x);
-            auto y = std::to_string(g_pQuickSlot3->window.pos.y);
+            auto x = std::to_wstring(g_pQuickSlot3->pos.x);
+            auto y = std::to_wstring(g_pQuickSlot3->pos.y);
 
-            WritePrivateProfileStringA(section.c_str(), "QUICKSLOT3_POS_X", x.c_str(), g_var->iniFileName.data());
-            WritePrivateProfileStringA(section.c_str(), "QUICKSLOT3_POS_Y", y.c_str(), g_var->iniFileName.data());
+            util::ini::set_value(section.c_str(), L"QUICKSLOT3_POS_X", x.c_str(), g_var->iniFileName.data());
+            util::ini::set_value(section.c_str(), L"QUICKSLOT3_POS_Y", y.c_str(), g_var->iniFileName.data());
         }
     }
 
@@ -59,7 +57,7 @@ namespace quick_slot
         get_configuration(unknown);
 
         if (!unknown->quickSlot1->plus || !unknown->quickSlot2->plus)
-            g_pQuickSlot3->window.visible = false;
+            g_pQuickSlot3->visible = false;
     }
 
     BOOL bag_to_bag(int bag, int slot)
