@@ -2,7 +2,7 @@
 #include <util/util.h>
 #include "include/static.h"
 
-// Inclusioni Shaiya core
+// Core Shaiya
 #include "include/shaiya/include/CPlayerData.h"
 #include "shaiya/include/common/Country.h"
 #include "shaiya/include/common/NpcTypes.h"
@@ -16,7 +16,7 @@ namespace hook
     DWORD return_address = 0x004D744C;
     DWORD original_function = 0x04B57B0;
     bool is_transparent = false;
-    DWORD last_toggle_time = 0;
+    ULONGLONG last_toggle_time = 0;
     const DWORD toggle_delay = 300;
 
     enum HelpMenuButtonIndex {
@@ -29,9 +29,25 @@ namespace hook
     };
 #pragma pack(pop)
 
+    HelpMenuButtonIndex currentOpened = HelpMenuButtonIndex(-1);
+
     void set_help_menu_npc(HelpMenuButtonIndex index)
     {
-        // Rimozione controllo finestra attiva
+        // Chiudi se ri-premuto
+        if (g_pPlayerData->windowType != WindowType::None && currentOpened == index)
+        {
+            g_pPlayerData->windowType = WindowType::None;
+            currentOpened = HelpMenuButtonIndex(-1);
+            return;
+        }
+
+        // Blocca apertura sovrapposta
+        if (g_pPlayerData->windowType != WindowType::None)
+        {
+            Static::MsgTextOut(31, 806, 12); // Messaggio: finestra già aperta
+            return;
+        }
+
         switch (index)
         {
         case BasicPlay:
@@ -70,137 +86,74 @@ namespace hook
             g_pPlayerData->windowType = WindowType::Merchant;
             break;
         }
+
         g_pPlayerData->npcIcon = 55;
         g_pPlayerData->textBuffer[0] = '\0';
+        currentOpened = index;
     }
 
-    void __declspec(naked) custom_buff_color()
+    void handle_key_combo()
+    {
+        if (!(GetAsyncKeyState(VK_CONTROL) & 0x8000))
+            return;
+
+        ULONGLONG now = GetTickCount64();
+        if (now - last_toggle_time < toggle_delay)
+            return;
+
+        HelpMenuButtonIndex map[6] = {
+            PlayMode,     // CTRL + 1
+            PlayGuide,    // CTRL + 2
+            BasicPlay,    // CTRL + 3
+            Blessing,     // CTRL + 4
+            BasicAction,  // CTRL + 5
+            Interface     // CTRL + 6
+        };
+
+        for (int i = 0; i < 6; ++i)
+        {
+            if (GetAsyncKeyState(0x31 + i) & 0x8000)
+            {
+                set_help_menu_npc(map[i]);
+                last_toggle_time = now;
+                return;
+            }
+        }
+    }
+
+    __declspec(naked) void custom_buff_color()
     {
         __asm {
             pushad
+        }
 
-            // CTRL + 0 toggle
-            push 0x30
-            call GetAsyncKeyState
-            shr ax, 0xF
-            cmp ax, 1
-            jne check_keys
-            push 0x11
-            call GetAsyncKeyState
-            shr ax, 0xF
-            cmp ax, 1
-            jne check_keys
+        if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) && (GetAsyncKeyState(0x30) & 0x8000))
+        {
+            ULONGLONG now = GetTickCount64();
+            if (now - last_toggle_time >= toggle_delay)
+            {
+                last_toggle_time = now;
+                is_transparent = !is_transparent;
+            }
+        }
 
-            call GetTickCount
-            mov ecx, last_toggle_time
-            sub eax, ecx
-            cmp eax, toggle_delay
-            jl check_keys
+        handle_key_combo();
 
-            call GetTickCount
-            mov last_toggle_time, eax
+        __asm {
+            popad
+            cmp byte ptr[is_transparent], 1
+            jne normal_color
+            push 0x50FFFFFF
+            jmp call_color
 
-            movzx eax, byte ptr[is_transparent]
-                xor al, 1
-                    mov byte ptr[is_transparent], al
+            normal_color :
+            push 0xFFFFFFFF
 
-                    check_keys :
-                // CTRL + 1..6 gestione NPC
-                push 0x11
-                    call GetAsyncKeyState
-                    shr ax, 0xF
-                    cmp ax, 1
-                    jne skip_keys
-
-                    call GetTickCount
-                    mov ecx, last_toggle_time
-                    sub eax, ecx
-                    cmp eax, toggle_delay
-                    jl skip_keys
-
-                    call GetTickCount
-                    mov last_toggle_time, eax
-
-                    push 0x31
-                    call GetAsyncKeyState
-                    shr ax, 0xF
-                    cmp ax, 1
-                    jne k2
-                    push PlayMode
-                    call set_help_menu_npc
-                    add esp, 4
-                    jmp skip_keys
-
-                    k2 :
-                push 0x32
-                    call GetAsyncKeyState
-                    shr ax, 0xF
-                    cmp ax, 1
-                    jne k3
-                    push PlayGuide
-                    call set_help_menu_npc
-                    add esp, 4
-                    jmp skip_keys
-
-                    k3 :
-                push 0x33
-                    call GetAsyncKeyState
-                    shr ax, 0xF
-                    cmp ax, 1
-                    jne k4
-                    push BasicPlay
-                    call set_help_menu_npc
-                    add esp, 4
-                    jmp skip_keys
-
-                    k4 :
-                push 0x34
-                    call GetAsyncKeyState
-                    shr ax, 0xF
-                    cmp ax, 1
-                    jne k5
-                    push Blessing
-                    call set_help_menu_npc
-                    add esp, 4
-                    jmp skip_keys
-
-                    k5 :
-                push 0x35
-                    call GetAsyncKeyState
-                    shr ax, 0xF
-                    cmp ax, 1
-                    jne k6
-                    push BasicAction
-                    call set_help_menu_npc
-                    add esp, 4
-                    jmp skip_keys
-
-                    k6 :
-                push 0x36
-                    call GetAsyncKeyState
-                    shr ax, 0xF
-                    cmp ax, 1
-                    jne skip_keys
-                    push Interface
-                    call set_help_menu_npc
-                    add esp, 4
-
-                    skip_keys:
-                popad
-
-                    cmp byte ptr[is_transparent], 1
-                    jne normal_color
-                    push 0x50FFFFFF
-                    jmp call_color
-
-                    normal_color :
-                push 0xFFFFFFFF
-
-                    call_color :
-                    mov ecx, ebp
-                    mov eax, original_function
-                    call eax
-                    jmp return_address
+                call_color :
+                mov ecx, ebp
+                mov eax, original_function
+                call eax
+                jmp return_address
         }
     }
 
@@ -216,4 +169,3 @@ namespace hook
         util::write_memory((void*)(hook_location + 5), nops, 4);
     }
 }
-
