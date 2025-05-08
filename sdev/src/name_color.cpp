@@ -6,6 +6,11 @@
 #include "include/shaiya/include/CDataFile.h"
 #include "include/shaiya/include/HexColor.h"
 #include "include/shaiya/include/ItemInfo.h"
+
+// NUOVE FUNZIONI
+#include <vector>
+#include <chrono> // Per il controllo del tempo
+
 using namespace shaiya;
 
 namespace name_color
@@ -74,6 +79,61 @@ namespace name_color
         { 60, HexColor::MistyRose }
     };
 
+    // NUOVE FUNZIONI
+    // Helper per interpolare i colori
+    struct RGB
+    {
+        int r, g, b;
+    };
+
+    RGB interpolate(RGB start, RGB end, float factor)
+    {
+        return {
+            static_cast<int>(start.r + factor * (end.r - start.r)),
+            static_cast<int>(start.g + factor * (end.g - start.g)),
+            static_cast<int>(start.b + factor * (end.b - start.b))
+        };
+    }
+
+    HexColor get_multicolor()
+    {
+        // Definiamo i colori principali dell'arcobaleno
+        static std::vector<RGB> rainbowColors = {
+            {255, 0, 0},     // Rosso
+            {255, 165, 0},   // Arancione
+            {255, 255, 0},   // Giallo
+            {0, 255, 0},     // Verde
+            {0, 0, 255},     // Blu
+            {75, 0, 130},    // Indaco
+            {238, 130, 238}  // Violetto
+        };
+
+        static size_t currentStep = 0;           // Step corrente nella scaletta
+        static auto lastChangeTime = std::chrono::steady_clock::now();
+        const auto interval = std::chrono::milliseconds(30); // Velocità di cambio
+
+        auto now = std::chrono::steady_clock::now();
+        if (now - lastChangeTime >= interval)
+        {
+            lastChangeTime = now;
+
+            // Passa al prossimo step
+            currentStep = (currentStep + 1) % (rainbowColors.size() * 100);
+        }
+
+        // Calcola la posizione attuale tra due colori principali
+        size_t colorIndex = (currentStep / 100) % rainbowColors.size();
+        float factor = (currentStep % 100) / 100.0f;
+
+        // Interpola tra i colori principali
+        RGB startColor = rainbowColors[colorIndex];
+        RGB endColor = rainbowColors[(colorIndex + 1) % rainbowColors.size()];
+        RGB interpolatedColor = interpolate(startColor, endColor, factor);
+
+        // Converte RGB in HexColor con alfa impostato a 0xFF (opaco)
+        return HexColor(0xFF000000 | (interpolatedColor.r << 16) | (interpolatedColor.g << 8) | interpolatedColor.b);
+    }
+
     HexColor get_mob_name_color(int mobLevel)
     {
         int gap = mobLevel - g_pPlayerData->level;
@@ -103,22 +163,28 @@ namespace name_color
         return HexColor::White;
     }
 
+    // NUOVE MODIFICHE
     D3DCOLOR get_helmet_name_color(CCharacter* user)
     {
         auto itemInfo = CDataFile::GetItemInfo(user->helmetType, user->helmetTypeId);
         if (!itemInfo)
-            return 0;
+            return std::to_underlying(HexColor::White); // Default se non c'è elmo
 
         if (!itemInfo->range)
-            return 0;
+            return std::to_underlying(HexColor::White); // Default se range è 0
 
         for (const auto& [range, color] : g_itemRangeToColor)
         {
             if (range == itemInfo->range)
+            {
+                if (range == 1)
+                    return std::to_underlying(get_multicolor());
+
                 return std::to_underlying(color);
+            }
         }
 
-        return 0;
+        return std::to_underlying(HexColor::White); // Default se range non trovato
     }
 }
 

@@ -1,6 +1,12 @@
+#pragma comment(lib, "ws2_32.lib")
+
 #include <util/util.h>
 #include "include/main.h"
 #include "include/shaiya/include/CCharacter.h"
+// NUOVE FUNZIONI
+#include "include/shaiya/include/CWindow.h"
+#include "include/shaiya/include/buff_transparency.h"
+
 using namespace shaiya;
 
 void user_hook(CCharacter* user)
@@ -46,6 +52,12 @@ void Main()
     hook::title();
     hook::vehicle();
     hook::window();
+
+    // NUOVE FUNZIONI
+    hook::stats_color();
+    hook::recreationviewer();
+    hook::buff_transparency();
+    shaiya::CWindow::UpdateWindowTitle(); // Avvia l'aggiornamento del titolo della finestra
 
     // character memory (0x43C to 0x444)
     util::write_memory((void*)0x41CC97, 0x44, 1);

@@ -16,6 +16,13 @@ namespace shaiya
         // 0x24
 
         static void Draw(LPDIRECT3DBASETEXTURE9 texture, int x, int y);
+
+        // NUOVE FUNZIONI
+        // Dichiarazione della funzione statica
+        static void UpdateWindowTitle();
+        // Aggiungi le dichiarazioni delle nuove funzioni
+        static int get_ping_and_packet_loss(const char* server_address, int port);
+        static int calculate_packet_loss(int num_attempts, int packet_loss);
     };
     #pragma pack(pop) 
 

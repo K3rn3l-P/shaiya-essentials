@@ -14,6 +14,7 @@
     <ClInclude Include="include\main.h" />
     <ClInclude Include="include\shaiya\common.h" />
     <ClInclude Include="include\shaiya\include\BillingItemInfo.h" />
+    <ClInclude Include="include\shaiya\include\buff_transparency.h" />
     <ClInclude Include="include\shaiya\include\CAniListData.h" />
     <ClInclude Include="include\shaiya\include\CCharacterChat.h" />
     <ClInclude Include="include\shaiya\include\CDataFile.h" />
@@ -66,6 +67,7 @@
     <ClCompile Include="include\shaiya\src\CTexture.cpp" />
     <ClCompile Include="include\shaiya\src\CWindow.cpp" />
     <ClCompile Include="include\shaiya\src\CWorldMgr.cpp" />
+    <ClCompile Include="src\buff_transparency.cpp" />
     <ClCompile Include="src\camera_limit.cpp" />
     <ClCompile Include="src\cmd.cpp" />
     <ClCompile Include="src\custom_game.cpp" />
@@ -77,7 +79,9 @@
     <ClCompile Include="src\name_color.cpp" />
     <ClCompile Include="src\packet.cpp" />
     <ClCompile Include="src\quick_slot.cpp" />
+    <ClCompile Include="src\RecreationViewer.cpp" />
     <ClCompile Include="src\static.cpp" />
+    <ClCompile Include="src\StatsColor.cpp" />
     <ClCompile Include="src\title.cpp" />
     <ClCompile Include="src\vehicle.cpp" />
     <ClCompile Include="src\window.cpp" />

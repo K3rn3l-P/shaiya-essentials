@@ -17,6 +17,9 @@ namespace hook
     void title();
     void vehicle();
     void window();
+    void stats_color();
+    void recreationviewer();
+    void buff_transparency();
 }
 
 inline int g_showCostumes = false;

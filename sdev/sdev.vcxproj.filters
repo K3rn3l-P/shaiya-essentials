@@ -152,6 +152,9 @@
     <ClInclude Include="include\shaiya\include\STextIME.h">
       <Filter>include\shaiya\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\shaiya\include\buff_transparency.h">
+      <Filter>include\shaiya\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -228,6 +231,15 @@
     </ClCompile>
     <ClCompile Include="include\shaiya\src\CEffectData.cpp">
       <Filter>include\shaiya\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\buff_transparency.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RecreationViewer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StatsColor.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
