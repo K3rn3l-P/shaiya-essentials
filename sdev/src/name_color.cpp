@@ -14,6 +14,7 @@ using namespace shaiya;
 
 namespace name_color
 {
+    // Funzione esistente
     const std::map<uint16_t, HexColor> g_itemRangeToColor
     {
         { 1,  HexColor::LightBlue }, { 2,  HexColor::Blue   }, { 3,  HexColor::Green  },
@@ -112,7 +113,7 @@ namespace name_color
     {
         auto itemInfo = CDataFile::GetItemInfo(user->helmetType, user->helmetTypeId);
         if (!itemInfo || itemInfo->range == 0)
-            return std::to_underlying(HexColor::White);
+            return std::to_underlying(HexColor::White); // Default se non c'è elmo
 
         auto it = g_itemRangeToColor.find(itemInfo->range);
         if (it != g_itemRangeToColor.end())
@@ -121,10 +122,11 @@ namespace name_color
                 ? std::to_underlying(get_multicolor())
                 : std::to_underlying(it->second);
         }
-        return std::to_underlying(HexColor::White);
+        return std::to_underlying(HexColor::White); // Default se range non trovato
     }
 }
 
+// Funzione esistente
 // Hook assembly
 extern "C" void __declspec(naked) naked_0x4E50D0()
 {
@@ -155,7 +157,7 @@ extern "C" void __declspec(naked) naked_0x45381B()
         push edi
         push esi
 
-        push esi
+        push esi // user
         call name_color::get_helmet_name_color
         add  esp, 4
         test eax, eax
@@ -174,6 +176,8 @@ extern "C" void __declspec(naked) naked_0x45381B()
 
 void hook::name_color()
 {
+    // mobs
     util::detour((void*)0x4E50D0, naked_0x4E50D0, 5);
+    // users
     util::detour((void*)0x45381B, naked_0x45381B, 6);
 }
