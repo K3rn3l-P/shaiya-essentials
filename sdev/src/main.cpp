@@ -1,4 +1,4 @@
-#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "ws2_32.lib") // funzioni della Windows Sockets API (WinSock)
 
 #include <util/util.h>
 #include "include/main.h"
