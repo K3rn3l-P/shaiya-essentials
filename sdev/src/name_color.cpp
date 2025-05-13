@@ -7,14 +7,13 @@
 #include "include/shaiya/include/HexColor.h"
 #include "include/shaiya/include/ItemInfo.h"
 
-#include <chrono>  // Per il controllo del tempo
-#include <cmath>   // Per fmodf, fabsf
+#include <chrono>
+#include <cmath>
 
 using namespace shaiya;
 
 namespace name_color
 {
-    // Funzione esistente
     const std::map<uint16_t, HexColor> g_itemRangeToColor
     {
         { 1,  HexColor::LightBlue }, { 2,  HexColor::Blue   }, { 3,  HexColor::Green  },
@@ -39,10 +38,8 @@ namespace name_color
         {58,  HexColor::NavajoWhite}, {59,  HexColor::LemonChiffon}, {60, HexColor::MistyRose}
     };
 
-    // Struttura RGB di supporto
     struct RGB { int r, g, b; };
 
-    // Conversione HSV -> RGB\    
     static RGB HSVtoRGB(float H, float S, float V)
     {
         float C = V * S;
@@ -65,21 +62,16 @@ namespace name_color
         };
     }
 
-    // Ritorna un colore arcobaleno ciclico senza glitch
     HexColor get_multicolor()
     {
-        constexpr float cycleDurationMs = 7000.0f; // 7 secondi per ciclo completo
+        constexpr float cycleDurationMs = 7000.0f;
         static const auto startTime = std::chrono::steady_clock::now();
 
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count();
-
-        // Calcolo dell'hue in [0,360)
         float hue = fmodf((elapsed / cycleDurationMs) * 360.0f, 360.0f);
-        constexpr float saturation = 1.0f;
-        constexpr float value = 1.0f;
 
-        RGB rgb = HSVtoRGB(hue, saturation, value);
+        RGB rgb = HSVtoRGB(hue, 1.0f, 1.0f);
         return HexColor(
             0xFF000000 |
             (static_cast<uint32_t>(rgb.r) << 16) |
@@ -88,7 +80,6 @@ namespace name_color
         );
     }
 
-    // Funzione esistente per i mob
     HexColor get_mob_name_color(int mobLevel)
     {
         int gap = mobLevel - g_pPlayerData->level;
@@ -104,16 +95,15 @@ namespace name_color
         case -1:          return HexColor::Green;
         case -2: case -3: return HexColor::Blue;
         case -4: case -5: return HexColor::LightBlue;
-        default:           return HexColor::White;
+        default:          return HexColor::White;
         }
     }
 
-    // Ritorna il colore del nome in base all'elmo (range 1 = arcobaleno)
     D3DCOLOR get_helmet_name_color(CCharacter* user)
     {
         auto itemInfo = CDataFile::GetItemInfo(user->helmetType, user->helmetTypeId);
         if (!itemInfo || itemInfo->range == 0)
-            return std::to_underlying(HexColor::White); // Default se non c'è elmo
+            return std::to_underlying(HexColor::White);
 
         auto it = g_itemRangeToColor.find(itemInfo->range);
         if (it != g_itemRangeToColor.end())
@@ -122,12 +112,11 @@ namespace name_color
                 ? std::to_underlying(get_multicolor())
                 : std::to_underlying(it->second);
         }
-        return std::to_underlying(HexColor::White); // Default se range non trovato
+        return std::to_underlying(HexColor::White);
     }
 }
 
-// Funzione esistente
-// Hook assembly
+// Hook colore nome mob
 extern "C" void __declspec(naked) naked_0x4E50D0()
 {
     __asm
@@ -148,27 +137,30 @@ extern "C" void __declspec(naked) naked_0x4E50D0()
     }
 }
 
+// Hook colore nome giocatori/admin
 static unsigned u0x453821 = 0x453821;
-extern "C" void __declspec(naked) naked_0x45381B()
+
+extern "C" void __declspec(naked) naked_0x45380C()
 {
     __asm
     {
-        push ebx
-        push edi
-        push esi
-
-        push esi // user
-        call name_color::get_helmet_name_color
-        add  esp, 4
+        movzx eax, byte ptr[esi + 0x2D4] // isAdmin
         test eax, eax
+        je not_admin
 
-        pop esi
-        pop edi
-        pop ebx
-        je original
-
+        call name_color::get_multicolor
         mov ebp, eax
-        original :
+        jmp done
+
+        not_admin :
+        push esi
+            call name_color::get_helmet_name_color
+            add  esp, 4
+            test eax, eax
+            je done
+            mov ebp, eax
+
+            done :
         cmp dword ptr ds : [0x22AA7F8] , ebx
             jmp u0x453821
     }
@@ -176,8 +168,6 @@ extern "C" void __declspec(naked) naked_0x45381B()
 
 void hook::name_color()
 {
-    // mobs
-    util::detour((void*)0x4E50D0, naked_0x4E50D0, 5);
-    // users
-    util::detour((void*)0x45381B, naked_0x45381B, 6);
+    util::detour((void*)0x4E50D0, naked_0x4E50D0, 5); // mob name color
+    util::detour((void*)0x45380C, naked_0x45380C, 6); // admin + user name color
 }
