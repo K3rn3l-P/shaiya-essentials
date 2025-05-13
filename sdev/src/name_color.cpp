@@ -64,20 +64,42 @@ namespace name_color
 
     HexColor get_multicolor()
     {
-        constexpr float cycleDurationMs = 7000.0f;
-        static const auto startTime = std::chrono::steady_clock::now();
+        constexpr float cycleDurationMs = 12000.0f;
+        constexpr float saturation = 0.9f;
+        constexpr float value = 0.95f;
 
         auto now = std::chrono::steady_clock::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count();
-        float hue = fmodf((elapsed / cycleDurationMs) * 360.0f, 360.0f);
+        float ms = static_cast<float>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                now.time_since_epoch()
+            ).count()
+            );
 
-        RGB rgb = HSVtoRGB(hue, 1.0f, 1.0f);
-        return HexColor(
-            0xFF000000 |
-            (static_cast<uint32_t>(rgb.r) << 16) |
-            (static_cast<uint32_t>(rgb.g) << 8) |
-            static_cast<uint32_t>(rgb.b)
-        );
+        float hue = fmodf((ms / cycleDurationMs) * 360.0f, 360.0f);
+
+        float C = value * saturation;
+        float Hprime = fmodf(hue / 60.0f, 6.0f);
+        float X = C * (1.0f - fabsf(fmodf(Hprime, 2.0f) - 1.0f));
+        float m = value - C;
+
+        float r = 0, g = 0, b = 0;
+        if (0 <= Hprime && Hprime < 1) { r = C; g = X; b = 0; }
+        else if (Hprime < 2) { r = X; g = C; b = 0; }
+        else if (Hprime < 3) { r = 0; g = C; b = X; }
+        else if (Hprime < 4) { r = 0; g = X; b = C; }
+        else if (Hprime < 5) { r = X; g = 0; b = C; }
+        else { r = C; g = 0; b = X; }
+
+        auto gamma = [](float c, float m) -> uint32_t {
+            float corrected = powf(c + m, 0.9f);
+            return static_cast<uint32_t>(corrected * 255.0f);
+            };
+
+        uint32_t red = gamma(r, m);
+        uint32_t green = gamma(g, m);
+        uint32_t blue = gamma(b, m);
+
+        return HexColor(0xFF000000 | (red << 16) | (green << 8) | blue);
     }
 
     HexColor get_mob_name_color(int mobLevel)
