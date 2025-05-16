@@ -35,32 +35,33 @@ inline bool IsApiHooked(LPCSTR moduleName, LPCSTR apiName) {
 inline bool IsInjectedThreadPresent() {
     return false;
 }
-
+/*
 inline void LogSuspiciousDetection(const std::string& msg) {
     wchar_t tempPath[MAX_PATH];
     GetTempPathW(MAX_PATH, tempPath);
-    std::wstring path = std::wstring(tempPath) + L"anticheat_advanced.log";
+    std::wstring path = std::wstring(tempPath)  + L"anticheat_advanced.log";
     std::ofstream log(path, std::ios::app);
     if (log.is_open()) log << msg << std::endl;
-}
+}*/
 
 inline bool RunAdvancedChecks() {
     if (IsApiHooked("kernel32.dll", "VirtualProtect")) {
-        LogSuspiciousDetection("Hook sospetto su VirtualProtect()");
+        //LogSuspiciousDetection("Hook sospetto su VirtualProtect()");
         return true;
     }
     return false;
 }
 
 inline DWORD WINAPI SafeAntiCheatThread(LPVOID) {
-    // Utilizzo corretto dello namespace chrono
+    // Delay iniziale per evitare conflitti con l'inizializzazione del gioco
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     while (true) {
         if (RunAdvancedChecks()) {
-            LogSuspiciousDetection("SafeAntiCheat: Detection");
-            ExitProcess(1);
+           // LogSuspiciousDetection("SafeAntiCheat: Detection");
+            ExitProcess(1); // Terminazione immediata senza logging
         }
+        // Scansione ogni 5 secondi
         std::this_thread::sleep_for(std::chrono::seconds(5));
     }
     return 0;

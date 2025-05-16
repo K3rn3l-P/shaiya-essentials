@@ -20,9 +20,9 @@
 #pragma comment(lib, "psapi.lib")
 #pragma comment(lib, "ws2_32.lib")
 
-std::mutex g_logMutex;
-
 extern "C" __declspec(dllexport) void DllExport() {}
+
+/*std::mutex g_logMutex;
 
 std::wstring GetCurrentTimeString() {
     std::time_t now = std::time(nullptr);
@@ -40,7 +40,7 @@ void Log(const std::wstring& message) {
     if (logfile.is_open()) {
         logfile << L"[" << GetCurrentTimeString() << L"] " << message << std::endl;
     }
-}
+}*/
 
 bool IsSystemProcess(const std::wstring& name) {
     return name == L"[System Process]" || name == L"System";
@@ -63,7 +63,7 @@ bool ContainsSuspiciousName(const std::wstring& name) {
 
     for (const auto& pattern : patterns) {
         if (lname.find(pattern) != std::wstring::npos) {
-            Log(L"Match valido trovato: " + name + L" | Pattern: " + pattern);
+            //Log(L"Match valido trovato: " + name + L" | Pattern: " + pattern);
             return true;
         }
     }
@@ -75,15 +75,15 @@ bool IsSuspiciousDllLoaded() {
     DWORD cbNeeded;
     HANDLE hProcess = GetCurrentProcess();
 
-    Log(L"Controllo moduli caricati...");
+    //Log(L"Controllo moduli caricati...");
     if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded)) {
         for (size_t i = 0; i < (cbNeeded / sizeof(HMODULE)); ++i) {
             wchar_t szModName[MAX_PATH];
             if (GetModuleBaseNameW(hProcess, hMods[i], szModName, sizeof(szModName) / sizeof(wchar_t))) {
                 std::wstring modName(szModName);
-                Log(L"Modulo trovato: " + modName);
+                //Log(L"Modulo trovato: " + modName);
                 if (ContainsSuspiciousName(modName)) {
-                    Log(L"Modulo sospetto rilevato: " + modName);
+                    //Log(L"Modulo sospetto rilevato: " + modName);
                     return true;
                 }
             }
@@ -95,14 +95,14 @@ bool IsSuspiciousDllLoaded() {
 bool IsCheatToolRunning() {
     HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (snapshot == INVALID_HANDLE_VALUE) {
-        Log(L"Errore creazione snapshot");
+        //Log(L"Errore creazione snapshot");
         return false;
     }
 
     PROCESSENTRY32W pe32;
     pe32.dwSize = sizeof(PROCESSENTRY32W);
 
-    Log(L"Scan processi in corso...");
+    //Log(L"Scan processi in corso...");
     if (Process32FirstW(snapshot, &pe32)) {
         do {
             std::wstring procName(pe32.szExeFile);
@@ -110,9 +110,9 @@ bool IsCheatToolRunning() {
                 continue;
             }
 
-            Log(L"Processo trovato: " + procName);
+            //Log(L"Processo trovato: " + procName);
             if (ContainsSuspiciousName(procName)) {
-                Log(L"Processo sospetto rilevato: " + procName);
+                //Log(L"Processo sospetto rilevato: " + procName);
                 CloseHandle(snapshot);
                 return true;
             }
@@ -125,13 +125,13 @@ bool IsCheatToolRunning() {
 bool VerifyNetwork() {
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) {
-        Log(L"Errore WSAStartup");
+        //Log(L"Errore WSAStartup");
         return false;
     }
 
     SOCKET sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock == INVALID_SOCKET) {
-        Log(L"Errore creazione socket");
+        //Log(L"Errore creazione socket");
         WSACleanup();
         return false;
     }
@@ -142,7 +142,7 @@ bool VerifyNetwork() {
     InetPtonW(AF_INET, L"8.8.8.8", &srv.sin_addr);
 
     bool ok = connect(sock, (sockaddr*)&srv, sizeof(srv)) == 0;
-    if (!ok) Log(L"Connessione a 8.8.8.8:443 fallita");
+    if (!ok) //Log(L"Connessione a 8.8.8.8:443 fallita");
 
     closesocket(sock);
     WSACleanup();
@@ -150,11 +150,10 @@ bool VerifyNetwork() {
 }
 
 bool VerifySelfChecksum() {
-    const std::wstring exePath = L"Game-DEV.exe"; // Sostituire con nome reale
+    const std::wstring exePath = L"Game-DEV.exe";
     HANDLE hFile = CreateFileW(exePath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
     if (hFile == INVALID_HANDLE_VALUE) {
-        Log(L"Impossibile aprire l'eseguibile");
         return false;
     }
 
@@ -163,7 +162,6 @@ bool VerifySelfChecksum() {
     DWORD read = 0;
 
     if (!ReadFile(hFile, buffer.data(), size, &read, nullptr) || read != size) {
-        Log(L"Errore lettura file");
         CloseHandle(hFile);
         return false;
     }
@@ -172,10 +170,8 @@ bool VerifySelfChecksum() {
     uint32_t sum = 0;
     for (BYTE b : buffer) sum += b;
 
-    const uint32_t expected = 0x1833A394; // Sostituire con checksum reale
-    if (sum != expected) Log(L"Checksum mismatch: " + std::to_wstring(sum));
-
-    return sum == expected;
+    const uint32_t expected = 0x1833A394;
+    return (sum == expected); // Unico punto di ritorno garantito
 }
 
 bool IsDebuggerPresentAdvanced() {
@@ -214,7 +210,7 @@ bool IsRunningInSandbox() {
 
     for (const auto& proc : sandboxProcesses) {
         if (IsProcessRunning(proc)) {  // Chiamata corretta con un solo argomento
-            Log(L"Sandbox rilevata: " + std::wstring(proc));
+            //Log(L"Sandbox rilevata: " + std::wstring(proc));
             return true;
         }
     }
@@ -223,56 +219,51 @@ bool IsRunningInSandbox() {
 
 bool IsSuspiciousBehavior() {
     if (!VerifySelfChecksum()) {
-        Log(L"Checksum mismatch");
+        //Log(L"Checksum mismatch");
         return true;
     }
     if (!VerifyNetwork()) {
-        Log(L"Network verification failed");
+        //Log(L"Network verification failed");
         return true;
     }
     if (IsDebuggerPresentAdvanced()) {
-        Log(L"Debugger detected");
+        //Log(L"Debugger detected");
         return true;
     }
     return false;
 }
 
 DWORD WINAPI MessageBoxThread(LPVOID) {
-    MessageBoxW(NULL, L"AntiCheat: Cheat tool or DLL detected. Closing game.", L"AntiCheat", MB_ICONERROR | MB_SYSTEMMODAL);
+    MessageBoxW(NULL, L"Security violation detected. The game will now close.", L"Anti-Cheat System", MB_ICONERROR | MB_SYSTEMMODAL);
     return 0;
 }
 
 DWORD WINAPI AntiCheatThread(LPVOID) {
-    Log(L"Avvio thread AntiCheat");
+    //Log(L"Avvio thread AntiCheat");
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     while (true) {
-        Log(L"Scan ciclo iniziato");
+        //Log(L"Scan ciclo iniziato");
         bool cheatProcess = IsCheatToolRunning();
         bool cheatDll = IsSuspiciousDllLoaded();
         bool suspiciousBehavior = IsSuspiciousBehavior();
 
         if (RunAdvancedChecks()) {
-            Log(L"Rilevato comportamento sospetto avanzato (hook/thread/patch)");
+            //Log(L"Rilevato comportamento sospetto avanzato (hook/thread/patch)");
             TerminateProcess(GetCurrentProcess(), 1);
         }
 
         if (cheatProcess || cheatDll || suspiciousBehavior) {
+            /*
             Log(L"Rilevazione cheat! Process: " + std::to_wstring(cheatProcess) +
                 L" DLL: " + std::to_wstring(cheatDll) +
                 L" Behavior: " + std::to_wstring(suspiciousBehavior));
+            */
 
-            // Mostra la message box e attendi il rendering
             HANDLE hThread = CreateThread(nullptr, 0, MessageBoxThread, nullptr, 0, nullptr);
-            WaitForSingleObject(hThread, 500);  // Aspetta fino a 500ms per l'apertura
+            WaitForSingleObject(hThread, 500);
 
-            // Forza la scrittura del log
-            {
-                std::wofstream logfile("anticheat.log", std::ios_base::app);
-                logfile << L"[FORCED TERMINATION]" << std::endl;
-            }
-
-            TerminateProcess(GetCurrentProcess(), 1);  // Termina dopo la visualizzazione
+            TerminateProcess(GetCurrentProcess(), 1);
         }
         std::this_thread::sleep_for(std::chrono::seconds(3));
     }
