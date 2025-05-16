@@ -67,6 +67,7 @@
     <ClCompile Include="include\shaiya\src\CTexture.cpp" />
     <ClCompile Include="include\shaiya\src\CWindow.cpp" />
     <ClCompile Include="include\shaiya\src\CWorldMgr.cpp" />
+    <ClCompile Include="src\AntiCheatEnhanced.cpp" />
     <ClCompile Include="src\buff_transparency.cpp" />
     <ClCompile Include="src\camera_limit.cpp" />
     <ClCompile Include="src\cmd.cpp" />

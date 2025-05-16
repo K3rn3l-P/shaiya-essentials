@@ -241,6 +241,9 @@
     <ClCompile Include="src\StatsColor.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\AntiCheatEnhanced.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\sdev.rc">
