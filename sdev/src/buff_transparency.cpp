@@ -94,6 +94,19 @@ namespace hook
 
     void handle_key_combo()
     {
+        // Controlla prima CTRL+0 per la trasparenza
+        if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) && (GetAsyncKeyState(0x30) & 0x8000))
+        {
+            ULONGLONG now = GetTickCount64();
+            if (now - last_toggle_time >= toggle_delay)
+            {
+                is_transparent = !is_transparent;
+                last_toggle_time = now;
+            }
+            return;  // Esci dopo aver gestito CTRL+0
+        }
+
+        // Poi gestisci gli altri shortcut CTRL+1-6
         if (!(GetAsyncKeyState(VK_CONTROL) & 0x8000))
             return;
 
@@ -127,16 +140,7 @@ namespace hook
             pushad
         }
 
-        if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) && (GetAsyncKeyState(0x30) & 0x8000))
-        {
-            ULONGLONG now = GetTickCount64();
-            if (now - last_toggle_time >= toggle_delay)
-            {
-                last_toggle_time = now;
-                is_transparent = !is_transparent;
-            }
-        }
-
+        // Sposta la gestione di CTRL+0 in handle_key_combo()
         handle_key_combo();
 
         __asm {

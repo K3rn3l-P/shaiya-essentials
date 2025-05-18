@@ -1,4 +1,4 @@
-#define WIN32_LEAN_AND_MEAN
+ï»¿#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <tlhelp32.h>
 #include <psapi.h>
@@ -19,6 +19,8 @@
 #include <queue>
 #include <cmath>
 #include <numeric>
+#include <wincrypt.h>
+#pragma comment(lib, "advapi32.lib")
 
 
 #pragma comment(lib, "psapi.lib")
@@ -79,50 +81,56 @@ const int KEY_SAMPLES = 15;         // Numero di campioni per il rilevamento
 const double MACRO_THRESHOLD = 30.0; // Soglia in millisecondi (30ms tra pressioni = 33 pressioni/secondo)
 const double HUMAN_VARIANCE = 8.0;  // Deviazione minima per input umano
 
-// Struttura per tracciamento input
+// Modifica la struttura e le dichiarazioni globali
 struct KeyEvent {
     DWORD key;
-    DWORD timestamp;
+    DWORD timestamp;  // Manteniamo DWORD per compatibilitï¿½ con GetTickCount()
+    bool isSystemKey;
 };
 
-std::queue<KeyEvent> keyEvents;
-std::mutex keyMutex;
+std::queue<KeyEvent> keyEvents;  // Dichiarazione esplicita
+std::mutex keyMutex;             // Dichiarazione esplicita
 
-// Hook per la tastiera (solo logica, non hook effettivo)
-LRESULT CALLBACK KeyboardHook(int nCode, WPARAM wParam, LPARAM lParam) {
-    if (nCode == HC_ACTION) {
-        KBDLLHOOKSTRUCT* keyInfo = (KBDLLHOOKSTRUCT*)lParam;
-
-        if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
-            std::lock_guard<std::mutex> lock(keyMutex);
-
-            // Mantieni solo gli ultimi KEY_SAMPLES eventi
-            if (keyEvents.size() >= KEY_SAMPLES) {
-                keyEvents.pop();
-            }
-
-            keyEvents.push({ keyInfo->vkCode, GetTickCount() });
-        }
-    }
-    return CallNextHookEx(NULL, nCode, wParam, lParam);
-}
-
-// Calcola la deviazione standard degli intervalli
+// Aggiorna la funzione CalculateVariance per usare DWORD
 double CalculateVariance(const std::vector<DWORD>& intervals) {
     if (intervals.size() < 2) return 0.0;
 
     double mean = std::accumulate(intervals.begin(), intervals.end(), 0.0) / intervals.size();
 
-    // Usa una funzione lambda per il calcolo della varianza
     double variance = std::accumulate(intervals.begin(), intervals.end(), 0.0,
         [mean](double acc, DWORD interval) {
-            return acc + std::pow(interval - mean, 2);
+            return acc + std::pow(static_cast<double>(interval) - mean, 2);
         });
 
     return std::sqrt(variance / intervals.size());
 }
 
-// Controllo macro avanzato
+// Modifica KeyboardHook per usare GetTickCount() con controllo overflow
+LRESULT CALLBACK KeyboardHook(int nCode, WPARAM wParam, LPARAM lParam) {
+    if (nCode == HC_ACTION) {
+        KBDLLHOOKSTRUCT* keyInfo = (KBDLLHOOKSTRUCT*)lParam;
+
+        // Ignora i tasti di sistema (CTRL, ALT, SHIFT, etc.)
+        bool isSystemKey = (keyInfo->vkCode == VK_CONTROL ||
+            keyInfo->vkCode == VK_MENU ||
+            keyInfo->vkCode == VK_SHIFT ||
+            keyInfo->vkCode == VK_LWIN ||
+            keyInfo->vkCode == VK_RWIN);
+
+        if ((wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) && !isSystemKey) {
+            std::lock_guard<std::mutex> lock(keyMutex);
+
+            if (keyEvents.size() >= KEY_SAMPLES) {
+                keyEvents.pop();
+            }
+
+            keyEvents.push({ keyInfo->vkCode, GetTickCount(), isSystemKey });
+        }
+    }
+    return CallNextHookEx(NULL, nCode, wParam, lParam);
+}
+
+// Aggiorna IsMacroDetected
 bool IsMacroDetected() {
     std::lock_guard<std::mutex> lock(keyMutex);
 
@@ -131,27 +139,28 @@ bool IsMacroDetected() {
     std::vector<DWORD> intervals;
     DWORD prevTime = keyEvents.front().timestamp;
 
-    while (!keyEvents.empty()) {
-        DWORD currentTime = keyEvents.front().timestamp;
-        keyEvents.pop();
+    // Creiamo una copia temporanea per non svuotare la coda originale
+    auto tempQueue = keyEvents;
+    while (!tempQueue.empty()) {
+        DWORD currentTime = tempQueue.front().timestamp;
+        tempQueue.pop();
 
         if (prevTime != 0) {
-            intervals.push_back(currentTime - prevTime);
+            // Gestione overflow di GetTickCount()
+            DWORD interval = (currentTime >= prevTime) ?
+                (currentTime - prevTime) :
+                ((0xFFFFFFFF - prevTime) + currentTime);
+            intervals.push_back(interval);
         }
         prevTime = currentTime;
     }
 
-    // Calcola statistiche
     double avgSpeed = std::accumulate(intervals.begin(), intervals.end(), 0.0) / intervals.size();
     double variance = CalculateVariance(intervals);
 
-    // 1. Velocità sovrumana
     bool speedFlag = avgSpeed < MACRO_THRESHOLD;
-
-    // 2. Regolarità meccanica
     bool regularityFlag = variance < HUMAN_VARIANCE;
 
-    // 3. Combinazione pericolosa
     return speedFlag && regularityFlag;
 }
 
@@ -229,35 +238,83 @@ bool VerifyNetwork() {
     bool ok = connect(sock, (sockaddr*)&srv, sizeof(srv)) == 0;
     if (!ok) //Log(L"Connessione a 8.8.8.8:443 fallita");
 
-    closesocket(sock);
+        closesocket(sock);
     WSACleanup();
     return ok;
 }
 
-bool VerifySelfChecksum() {
-    const std::wstring exePath = L"Game.exe";
-    HANDLE hFile = CreateFileW(exePath.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-    if (hFile == INVALID_HANDLE_VALUE) {
-        return false;
+std::wstring BytesToHexString(const BYTE* data, DWORD length) {
+    std::wstringstream ss;
+    ss << std::hex << std::uppercase;
+    for (DWORD i = 0; i < length; ++i) {
+        ss.width(2);
+        ss.fill(L'0');
+        ss << static_cast<int>(data[i]);
     }
+    return ss.str();
+}
 
-    DWORD size = GetFileSize(hFile, nullptr);
-    std::vector<BYTE> buffer(size);
-    DWORD read = 0;
+std::wstring CalculateFileSHA256(const std::wstring& filePath) {
+    HCRYPTPROV hProv = NULL;
+    HCRYPTHASH hHash = NULL;
+    HANDLE hFile = INVALID_HANDLE_VALUE;
+    BYTE buffer[4096];
+    DWORD bytesRead = 0;
+    BYTE hash[32];  // SHA256 = 32 bytes
+    DWORD hashLen = sizeof(hash);
+    std::wstring hashStr;
 
-    if (!ReadFile(hFile, buffer.data(), size, &read, nullptr) || read != size) {
+    // Open the file
+    hFile = CreateFileW(filePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE)
+        return L"";
+
+    if (!CryptAcquireContextW(&hProv, NULL, NULL, PROV_RSA_AES, CRYPT_VERIFYCONTEXT)) {
         CloseHandle(hFile);
-        return false;
+        return L"";
     }
+
+    if (!CryptCreateHash(hProv, CALG_SHA_256, 0, 0, &hHash)) {
+        CryptReleaseContext(hProv, 0);
+        CloseHandle(hFile);
+        return L"";
+    }
+
+    while (ReadFile(hFile, buffer, sizeof(buffer), &bytesRead, NULL) && bytesRead != 0) {
+        if (!CryptHashData(hHash, buffer, bytesRead, 0)) {
+            CryptDestroyHash(hHash);
+            CryptReleaseContext(hProv, 0);
+            CloseHandle(hFile);
+            return L"";
+        }
+    }
+
+    if (CryptGetHashParam(hHash, HP_HASHVAL, hash, &hashLen, 0)) {
+        hashStr = BytesToHexString(hash, hashLen);
+    }
+
+    CryptDestroyHash(hHash);
+    CryptReleaseContext(hProv, 0);
     CloseHandle(hFile);
 
-    uint32_t sum = 0;
-    for (BYTE b : buffer) sum += b;
-
-    const uint32_t expected = 0x1833A77E; // Cambia nel tuo codice
-    return (sum == expected);  
+    return hashStr;
 }
+
+
+bool VerifySelfChecksum() {
+    const std::wstring exePath = L"Game.exe";
+    const std::wstring expectedHash = L"5886AFBD79E4B336F1161FAB0927FF4A3974EE98976F15E7C0E591EDFDC14562";  // Esempio SHA256
+    // Generazione dell'hash con PowerShell: Get-FileHash -Path "Game.exe" -Algorithm SHA256
+
+    std::wstring actualHash = CalculateFileSHA256(exePath);
+    if (actualHash.empty()) {
+        return false;
+    }
+
+    std::transform(actualHash.begin(), actualHash.end(), actualHash.begin(), ::towupper); // Uniforma maiuscolo
+    return (actualHash == expectedHash);
+}
+
 
 bool IsDebuggerPresentAdvanced() {
     BOOL isDebuggerPresent = FALSE;
@@ -324,12 +381,16 @@ DWORD WINAPI MessageBoxThread(LPVOID) {
 }
 
 DWORD WINAPI AntiCheatThread(LPVOID) {
+    // Riduci la prioritï¿½ del thread anti-cheat
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
     //Log(L"Avvio thread AntiCheat");
     std::this_thread::sleep_for(std::chrono::seconds(1));
     HHOOK hook = SetWindowsHookEx(WH_KEYBOARD_LL, KeyboardHook, NULL, 0);
 
 
     while (true) {
+        // Aggiungi un piccolo delay per ridurre l'impatto
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         //Log(L"Scan ciclo iniziato");
         bool cheatProcess = IsCheatToolRunning();
         bool cheatDll = IsSuspiciousDllLoaded();
@@ -352,14 +413,17 @@ DWORD WINAPI AntiCheatThread(LPVOID) {
             */
 
             HANDLE hThread = CreateThread(nullptr, 0, MessageBoxThread, nullptr, 0, nullptr);
-            WaitForSingleObject(hThread, 500);
-
+            if (hThread != NULL) {
+                WaitForSingleObject(hThread, 500);
+                CloseHandle(hThread);  // Importante: chiudere l'handle dopo l'uso
+            }
             TerminateProcess(GetCurrentProcess(), 1);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
-
-    UnhookWindowsHookEx(hook);
+    if (hook) {
+        UnhookWindowsHookEx(hook);
+    }
     return 0;
 }
 
