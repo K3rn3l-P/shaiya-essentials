@@ -21,7 +21,7 @@
 #include <numeric>
 #include <wincrypt.h>
 #pragma comment(lib, "advapi32.lib")
-
+#include "../../UltimateAntiCheat/Common/sha256_hashes.hpp"
 
 #pragma comment(lib, "psapi.lib")
 #pragma comment(lib, "ws2_32.lib")
@@ -301,20 +301,34 @@ std::wstring CalculateFileSHA256(const std::wstring& filePath) {
 }
 
 
-bool VerifySelfChecksum() {
-    const std::wstring exePath = L"Game.exe";
-    const std::wstring expectedHash = L"5886AFBD79E4B336F1161FAB0927FF4A3974EE98976F15E7C0E591EDFDC14562";  // Esempio SHA256
-    // Generazione dell'hash con PowerShell: Get-FileHash -Path "Game.exe" -Algorithm SHA256
-
+bool VerifyFileChecksum(const std::wstring& exePath, const std::wstring& expectedHash) {
     std::wstring actualHash = CalculateFileSHA256(exePath);
     if (actualHash.empty()) {
         return false;
     }
-
-    std::transform(actualHash.begin(), actualHash.end(), actualHash.begin(), ::towupper); // Uniforma maiuscolo
+    std::transform(actualHash.begin(), actualHash.end(), actualHash.begin(), ::towupper);
     return (actualHash == expectedHash);
 }
 
+bool VerifySelfChecksum() {
+    struct FileCheck {
+        std::wstring exePath;
+        std::wstring expectedHash;
+    };
+
+    // Inserisci qui gli hash reali di Uppdater.exe e game.exe
+    const std::vector<FileCheck> filesToCheck = {
+    {L"x32.exe",      std::wstring(expectedX32Sha256.begin(), expectedX32Sha256.end())},
+    {L"Updater.exe",  std::wstring(expectedUpdaterSha256.begin(), expectedUpdaterSha256.end())},
+    };
+
+    for (const auto& file : filesToCheck) {
+        if (!VerifyFileChecksum(file.exePath, file.expectedHash)) {
+            return false; // Appena uno fallisce, esce subito
+        }
+    }
+    return true; // Tutti i file sono validi
+}
 
 bool IsDebuggerPresentAdvanced() {
     BOOL isDebuggerPresent = FALSE;
