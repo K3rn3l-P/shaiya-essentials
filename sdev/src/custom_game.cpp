@@ -23,7 +23,7 @@ void set_help_menu_npc(HelpMenuButtonIndex buttonIndex)
     // should not allow two windows at once
     if (g_pPlayerData->windowType != WindowType::None)
     {
-        Static::MsgTextOut(31, 806, 12);
+        Static::SysMsgToChatBox(31, 806, 12);
         return;
     }
 

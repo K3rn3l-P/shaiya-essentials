@@ -13,7 +13,7 @@ bool Static::PlayWav(const char* wavFileName, D3DVECTOR* origin, float volume, b
     return (*(LPFN)0x56C650)((void*)0x22B4030, wavFileName, origin, volume, repeat);
 }
 
-void Static::MsgTextOut(int messageType, int messageNumber, int unknown)
+void Static::SysMsgToChatBox(int messageType, int messageNumber, int unknown)
 {
     typedef void(__cdecl* LPFN)(int, int, int);
     (*(LPFN)0x423150)(messageType, messageNumber, unknown);
@@ -37,7 +37,13 @@ D3DXMATRIX* Static::D3DXMatrixRotationZ(D3DXMATRIX* out, float angle)
     return (*(LPFN)0x65A031)(out, angle);
 }
 
-void* Static::malloc(size_t size)
+void Static::operator_delete(void* block)
+{
+    typedef void(__cdecl* LPFN)(void*);
+    (*(LPFN)0x6307CD)(block);
+}
+
+void* Static::operator_new(size_t size)
 {
     typedef void* (__cdecl* LPFN)(size_t);
     return (*(LPFN)0x6307F3)(size);

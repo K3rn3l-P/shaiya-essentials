@@ -20,8 +20,9 @@ namespace quick_slot
         g_pQuickSlot3->pos.x = x;
         g_pQuickSlot3->pos.y = y;
 
-        auto value = util::ini::get_value(section.c_str(), L"QUICKSLOTPLUS_PLUS", L"", g_var->iniFileName.data());
-        unknown->quickSlot2->plus = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
+        std::string str(MAX_PATH, 0);
+        GetPrivateProfileStringA(section.c_str(), "QUICKSLOTPLUS_PLUS", "", str.data(), str.size(), g_var->iniFileName.data());
+        unknown->quickSlot2->plus = str.compare(0, 4, "TRUE") == 0;
         CTexture::CreateFromFile(&unknown->quickSlot2->plusImage, "data/interface", "main_slot_plus.tga", 32, 64);
     }
 
@@ -34,20 +35,20 @@ namespace quick_slot
             std::wstring value = quickSlot->plus ? L"TRUE" : L"FALSE";
             util::ini::set_value(section.c_str(), L"QUICKSLOTPLUS_PLUS", value.c_str(), g_var->iniFileName.data());
         }
-        
+
         if (quickSlot->id == 2)
         {
-            auto x = std::to_wstring(g_pQuickSlot3->pos.x);
-            auto y = std::to_wstring(g_pQuickSlot3->pos.y);
+            auto x = std::to_string(g_pQuickSlot3->window.pos.x);
+            auto y = std::to_string(g_pQuickSlot3->window.pos.y);
 
-            util::ini::set_value(section.c_str(), L"QUICKSLOT3_POS_X", x.c_str(), g_var->iniFileName.data());
-            util::ini::set_value(section.c_str(), L"QUICKSLOT3_POS_Y", y.c_str(), g_var->iniFileName.data());
+            WritePrivateProfileStringA(section.c_str(), "QUICKSLOT3_POS_X", x.c_str(), g_var->iniFileName.data());
+            WritePrivateProfileStringA(section.c_str(), "QUICKSLOT3_POS_Y", y.c_str(), g_var->iniFileName.data());
         }
     }
 
     void create(Unknown* unknown)
     {
-        auto block = Static::malloc(sizeof(CQuickSlot));
+        auto block = Static::operator_new(sizeof(CQuickSlot));
         if (!block)
             return;
 

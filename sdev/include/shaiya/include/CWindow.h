@@ -14,8 +14,6 @@ namespace shaiya
         D2D_POINT_2U leftMouseClickPos;  //0x18
         bool32_t visible;                //0x20
         // 0x24
-
-        static void Draw(LPDIRECT3DBASETEXTURE9 texture, int x, int y);
     };
     #pragma pack(pop) 
 

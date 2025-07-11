@@ -9,18 +9,12 @@ CCharacter* CWorldMgr::FindUser(uint objectId)
 
 CMonster* CWorldMgr::FindMob(uint objectId)
 {
-    typedef CMonster* (__thiscall* LPFN)(void*, uint);
-    return (*(LPFN)0x452B90)((void*)0x7C4A68, objectId);
+    typedef CMonster* (__thiscall* LPFN)(void*, ULONG);
+    return (*(LPFN)0x452B90)((void*)0x7C4A68, id);
 }
 
-CNpc* CWorldMgr::FindNpc(uint objectId)
+CNpc* CWorldMgr::FindNpc(ULONG id/*CNpc->id*/)
 {
-    typedef CNpc* (__thiscall* LPFN)(void*, uint);
-    return (*(LPFN)0x452C00)((void*)0x7C4A68, objectId);
-}
-
-void CWorldMgr::RenderEffect(uint effectDataId, uint effectSubId, D3DVECTOR* pos, D3DVECTOR* dir, D3DVECTOR* up, int unknown/*0:9*/)
-{
-    typedef void(__thiscall* LPFN)(void*, uint, uint, D3DVECTOR*, D3DVECTOR*, D3DVECTOR*, int);
-    (*(LPFN)0x459120)((void*)0x7C4A68, effectDataId, effectSubId, pos, dir, up, unknown);
+    typedef CNpc* (__thiscall* LPFN)(void*, ULONG);
+    return (*(LPFN)0x452C00)((void*)0x7C4A68, id);
 }

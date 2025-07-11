@@ -6,6 +6,7 @@ extern "C" __declspec(dllexport) void DllExport();
 namespace hook
 {
     void camera_limit();
+    void character();
     void cmd();
     void custom_game();
     void equipment();

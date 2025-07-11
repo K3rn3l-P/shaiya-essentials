@@ -9,17 +9,18 @@ using namespace shaiya;
 
 void load_advanced_config()
 {
-    auto value = util::ini::get_value(L"ADVANCED", L"COSTUMES", L"TRUE", g_var->iniFileName.data());
-    g_showCostumes = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
+    std::string str(MAX_PATH, 0);
+    GetPrivateProfileStringA("ADVANCED", "COSTUMES", "TRUE", str.data(), str.size(), g_var->iniFileName.data());
+    g_showCostumes = str.compare(0, 4, "TRUE") == 0;
 
-    value = util::ini::get_value(L"ADVANCED", L"WINGS", L"TRUE", g_var->iniFileName.data());
-    g_showWings = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
+    GetPrivateProfileStringA("ADVANCED", "WINGS", "TRUE", str.data(), str.size(), g_var->iniFileName.data());
+    g_showWings = str.compare(0, 4, "TRUE") == 0 ? true : false;
 
-    value = util::ini::get_value(L"ADVANCED", L"EFFECTS", L"TRUE", g_var->iniFileName.data());
-    g_showEffects = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
+    GetPrivateProfileStringA("ADVANCED", "EFFECTS", "TRUE", str.data(), str.size(), g_var->iniFileName.data());
+    g_showEffects = str.compare(0, 4, "TRUE") == 0 ? true : false;
 
-    value = util::ini::get_value(L"ADVANCED", L"PETS", L"TRUE", g_var->iniFileName.data());
-    g_showPets = util::string::icompare<wchar_t>(value, L"TRUE") == 0;
+    GetPrivateProfileStringA("ADVANCED", "PETS", "TRUE", str.data(), str.size(), g_var->iniFileName.data());
+    g_showPets = str.compare(0, 4, "TRUE") == 0 ? true : false;
     g_showMobEffects = g_showPets;
 }
 
@@ -29,12 +30,12 @@ int command_handler(char* text)
     if (!input.starts_with('/'))
         return 1;
 
-    auto argv = util::string::split(input, ' ');
+    auto argv = util::split(input, ' ');
     auto argc = argv.size();
 
     if (!argc)
     {
-        Static::MsgTextOut(31, 253, 12);
+        Static::SysMsgTextOut(31, 253, 12);
         return 0;
     }
 

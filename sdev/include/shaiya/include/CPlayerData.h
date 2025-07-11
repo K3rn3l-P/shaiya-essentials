@@ -10,10 +10,7 @@
 #include "include/shaiya/common.h"
 #include "include/shaiya/include/BillingItemInfo.h"
 #include "include/shaiya/include/CItem.h"
-#include "include/shaiya/include/CMap.h"
 #include "include/shaiya/include/CQuickPotionSlot.h"
-#include "include/shaiya/include/CUnionPartyInfo.h"
-#include "include/shaiya/include/CVector.h"
 #include "include/shaiya/include/ExcItem.h"
 #include "include/shaiya/include/TargetType.h"
 #include "include/shaiya/include/WindowType.h"
@@ -165,42 +162,19 @@ namespace shaiya
         uint8_t questResultMessageIndex;      //0x91AD38  0xDB68
         PAD(3);
         // effect 39,44,45,50,99
-        uint8_t itemEffectBag;                //0x91AD3C  0xDB6C
-        uint8_t itemEffectSlot;               //0x91AD3D  0xDB6D
-        uint8_t townMoveScrollBag;            //0x91AD3E  0xDB6E
-        uint8_t townMoveScrollSlot;           //0x91AD3F  0xDB6F
-        uint32_t npcTypeId;                   //0x91AD40  0xDB70
-        uint32_t npcType;                     //0x91AD44  0xDB74
-        PAD(26802528);
-        CVector<SkillData> skillData;               //0x22AA6A8  0x199D518
-        CVector<QuestData> questData;               //0x22AA6C0  0x199D530
-        // 0x22AA6D8  0x199D548
-        CVector<QuestFinishData> questFinishData;
-        CMap<uint32_t, SetSkillData> setSkillData;  //0x22AA6F0  0x199D560
-        CVector<PartyData> partyData;               //0x22AA704  0x199D574
-        CMap<uint32_t, PartyData> partyData2;       //0x22AA71C  0x199D58C
-        CUnionPartyInfo unionInfo;                  //0x22AA730  0x199D5A0
-        // 0x22AA74C  0x199D5BC
-        PAD(28);
-        CVector<GuildUserData> guildUserData;       //0x22AA768  0x199D598
-        // 0x22AA780  0x199D5B0
-        CVector<GuildJoinUserData> guildJoinUserData;
-        CVector<FriendData> friendData;             //0x22AA798  0x199D5C8
-        CVector<BlockData> blockData;               //0x22AA7B0  0x199D5E0
-        CVector<FindPartyData> findPartyData;       //0x22AA7C8  0x199D5F8
-        CMap<uint32_t, ObeliskData> obeliskData;    //0x22AA7E0  0x199D610
-        uint32_t partyBossId;                       //0x22AA7F4  0x199D624
-        bool32_t isPartyUser;                       //0x22AA7F8  0x199D628
-        bool32_t isUnionUser;                       //0x22AA7FC  0x199D62C
-        PAD(20);
-        uint8_t attackSpeed;                        //0x22AA814  0x199D644
-        uint8_t moveSpeed;                          //0x22AA815  0x199D645
-        Country country2;                           //0x22AA816  0x199D646
-        Grow maxGrow;                               //0x22AA817  0x199D647
-        Array<CQuickPotionSlot, 50> quickSlots;     //0x22AA818  0x199D648
-        UINT8 quickSlot1Bag;                        //0x22AAB38  0x199D968
-        UINT8 quickSlot2Bag;                        //0x22AAB39  0x199D969
-        UINT8 quickSlot3Bag;                        //0x22AAB3A  0x199D96A
+        UINT8 itemEffectBag;                //0x91AD3C  0xDB6C
+        UINT8 itemEffectSlot;               //0x91AD3D  0xDB6D
+        UINT8 townScrollBag;                //0x91AD3E  0xDB6E
+        UINT8 townScrollSlot;               //0x91AD3F  0xDB6F
+        UINT32 npcTypeId;                   //0x91AD40  0xDB70
+        NpcType32 npcType;                  //0x91AD44  0xDB74
+        PAD(26802894);
+        Country country;                    //0x22AA816  0x199D646
+        PAD(1);
+        Array<QuickSlot, 50> quickSlots;    //0x22AA818  0x199D648
+        UINT8 quickSlot1Bag;                //0x22AAB38  0x199D968
+        UINT8 quickSlot2Bag;                //0x22AAB39  0x199D969
+        UINT8 quickSlot3Bag;                //0x22AAB3A  0x199D96A
         PAD(1);
         Array<CQuickPotionSlot, 24> revolver;       //0x22AAB3C  0x199D96C
         // 0x22AACBC  0x199DAEC
@@ -227,21 +201,8 @@ namespace shaiya
         StoredPointItems storedPointItems;          //0x22ABB52  0x199E982
         // 0x22ABE22  0x199EC52
         PAD(1970);
-        uint32_t npcId3;                            //0x22AC5D4  0x199F404
-        PAD(12548);
-        CMap<uint32_t, GuildData2> guildData2;      //0x22AF6DC  0x19A250C
-        // 0x22AF6F0  0x19A2520
-        PAD(24);
-        CVector<GuildNpcData> guildNpcData;         //0x22AF708  0x19A2538
-        // 0x22AF720  0x19A2550
-        PAD(2042);
-        SYSTEMTIME serverTime;                      //0x22AFF1A  0x19A2D4A
-        // 0x22AFF2A  0x19A2D5A
-        PAD(6);
-        LARGE_INTEGER unknownSeconds;               //0x22AFF30  0x19A2D60
-        LARGE_INTEGER serverTimeOffsetSeconds;      //0x22AFF38  0x19A2D68
-        // 0x22AFF40  0x19A2D70
-        PAD(712);
+        ULONG npcId3;                       //0x22AC5D4  0x199F404
+        PAD(15408);
         // 0x19A3038
     };
     #pragma pack(pop)
