@@ -193,8 +193,7 @@
       </Command>
     </PreBuildEvent>
     <PostBuildEvent>
-      <Command>   powershell -ExecutionPolicy Bypass -File "C:\Users\lol1\Documents\A-Best-Installation-GUIDE\100.Code-Project\script\sha256_hashes.ps1"
-   </Command>
+      <Command>powershell -ExecutionPolicy Bypass -File "C:\Users\lol1\Documents\A-Best-Installation-GUIDE\100.Code-Project\script\sha256_hashes.ps1"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
