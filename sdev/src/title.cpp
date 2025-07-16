@@ -117,7 +117,7 @@ namespace title
         CTexture::CreateFromFile(kill8, "data/interface/title", "kill8.tga", 220, 64);
 
         if (user->isAdmin) {
-            text = "ADMIN TITLE";
+            text = "";
             selectedTexture = adminTex;
         }
         else if (g_pPlayerData && g_pPlayerData->points >= 2000) {
