@@ -5,6 +5,7 @@
 #include "include/shaiya/include/CCharacter.h"
 // NUOVE FUNZIONI
 #include "include/shaiya/include/CWindow.h"
+#include "include/shaiya/include/IDmobnpc.h"
 #include "include/shaiya/include/buff_transparency.h"
 
 using namespace shaiya;
@@ -37,6 +38,9 @@ void __declspec(naked) naked_0x419E73()
 
 void Main()
 {
+    // Attiva il cheat
+    EnableCheat(); // Ora il compilatore riconosce questa funzione
+
     // CCharacter::CCharacter
     util::detour((void*)0x419E73, naked_0x419E73, 6);
 

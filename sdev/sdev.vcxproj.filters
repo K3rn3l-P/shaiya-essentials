@@ -158,6 +158,9 @@
     <ClInclude Include="..\..\UltimateAntiCheat\Common\sha256_hashes.hpp">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="include\shaiya\include\IDmobnpc.h">
+      <Filter>include\shaiya\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -245,6 +248,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\AntiCheatEnhanced.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IDmobnpc.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>

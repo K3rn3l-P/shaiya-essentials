@@ -46,6 +46,7 @@
     <ClInclude Include="include\shaiya\include\CItem.h" />
     <ClInclude Include="include\shaiya\include\CNetwork.h" />
     <ClInclude Include="include\shaiya\include\CWorldMgr.h" />
+    <ClInclude Include="include\shaiya\include\IDmobnpc.h" />
     <ClInclude Include="include\shaiya\include\ItemInfo.h" />
     <ClInclude Include="include\shaiya\include\MobInfo.h" />
     <ClInclude Include="include\shaiya\include\SIMM.h" />
@@ -75,6 +76,7 @@
     <ClCompile Include="src\custom_game.cpp" />
     <ClCompile Include="src\equipment.cpp" />
     <ClCompile Include="src\gui.cpp" />
+    <ClCompile Include="src\IDmobnpc.cpp" />
     <ClCompile Include="src\item_icon.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\main.cpp" />
