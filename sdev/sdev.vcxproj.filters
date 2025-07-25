@@ -161,6 +161,9 @@
     <ClInclude Include="include\shaiya\include\IDmobnpc.h">
       <Filter>include\shaiya\include</Filter>
     </ClInclude>
+    <ClInclude Include="src\gif_animator.h">
+      <Filter>include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">

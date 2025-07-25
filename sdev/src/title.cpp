@@ -1,3 +1,18 @@
+// GifAnimator: gestisce una sequenza di CTexture* come animazione tipo GIF.
+// Esempio di utilizzo per altre animazioni:
+// 1. Crea una nuova istanza: GifAnimator myAnimator(velocitaMs);
+// 2. Prepara i frame: std::vector<CTexture*> frames = { tex1, tex2, ... };
+// 3. myAnimator.setFrames(frames);
+// 4. Per ottenere il frame corrente: myAnimator.getCurrentFrame();
+// 5. Usa il frame in CTexture::Render(...)
+// Puoi creare più GifAnimator (es: uno per admin, uno per kill, uno per vip, ecc.)
+// Esempio per animazione kill:
+// GifAnimator killAnimator(80); // 80ms per frame
+// std::vector<CTexture*> killFrames = { kill0, kill1, kill2 };
+// killAnimator.setFrames(killFrames);
+// ...
+// selectedTexture = killAnimator.getCurrentFrame();
+
 #include <map>
 #include <tuple>
 #include <util/util.h>
@@ -12,6 +27,9 @@
 #include <set>
 #include <include/shaiya/include/CTexture.h>
 #include "include/shaiya/include/CPlayerData.h"
+#include <vector>
+#include <windows.h>
+#include "gif_animator.h"
 
 using namespace shaiya;
 
@@ -87,22 +105,58 @@ namespace title
     CTexture* adminTex = new CTexture{};
     CTexture* vipTex = new CTexture{};
 
+    // Aggiungi altre immagini per gif qui!
+
+    CTexture* admin0 = new CTexture{};
+    CTexture* admin1 = new CTexture{};
+    CTexture* admin2 = new CTexture{};
+    CTexture* admin3 = new CTexture{};
+    CTexture* admin4 = new CTexture{};
+    CTexture* admin5 = new CTexture{};
+    CTexture* admin6 = new CTexture{};
+    CTexture* admin7 = new CTexture{};
+    CTexture* admin8 = new CTexture{};
+    CTexture* admin9 = new CTexture{};
+    CTexture* admin10 = new CTexture{};
+    CTexture* admin11 = new CTexture{};
+    CTexture* admin12 = new CTexture{};
+    CTexture* admin13 = new CTexture{};
+    CTexture* admin14 = new CTexture{};
+    CTexture* admin15 = new CTexture{};
+    CTexture* admin16 = new CTexture{};
+    CTexture* admin17 = new CTexture{};
+    CTexture* admin18 = new CTexture{};
+    CTexture* admin19 = new CTexture{};
+
+    GifAnimator adminAnimator(100); // 100ms per frame
+
     void InitiateTitles() {
         auto clear = [](CTexture* tex) {
             tex->texture = (LPDIRECT3DTEXTURE9)0x0;
             memset(tex->pad24, 0, sizeof(tex->pad24));
             tex->size.width = 0.0f;
             tex->size.height = 0.0f;
-            };
+        };
         clear(kill0); clear(kill1); clear(kill2); clear(kill3); clear(kill4);
         clear(kill5); clear(kill6); clear(kill7); clear(kill8); clear(adminTex);
         clear(vipTex);
+        clear(admin0); clear(admin1); clear(admin2); clear(admin3); clear(admin4);
+        clear(admin5); clear(admin6); clear(admin7); clear(admin8); clear(admin9);
+        clear(admin10); clear(admin11); clear(admin12); clear(admin13); clear(admin14);
+        clear(admin15); clear(admin16); clear(admin17); clear(admin18); clear(admin19);
+
+        // aggiungi le immagini per gif qui! sopra su "clear" e sotto su "frames"
+
+        std::vector<CTexture*> frames = { admin0, admin1, admin2, admin3, admin4, admin5, admin6, admin7, admin8, admin9, admin10, admin11, admin12, admin13, admin14, admin15, admin16, admin17, admin18, admin19 };
+        adminAnimator.setFrames(frames);
     }
 
     void hook(CCharacter* user, float x, float y, float extrusion) {
         const char* text = nullptr;
         HexColor color = HexColor::Gold;
         CTexture* selectedTexture = nullptr;
+
+		// Aggiungi altre immagini per gif qui!
 
         CTexture::CreateFromFile(adminTex, "data/interface/title", "admin.tga", 220, 64);
         CTexture::CreateFromFile(vipTex, "data/interface/title", "vip.tga", 220, 64);
@@ -115,10 +169,31 @@ namespace title
         CTexture::CreateFromFile(kill6, "data/interface/title", "kill6.tga", 220, 64);
         CTexture::CreateFromFile(kill7, "data/interface/title", "kill7.tga", 220, 64);
         CTexture::CreateFromFile(kill8, "data/interface/title", "kill8.tga", 220, 64);
+        CTexture::CreateFromFile(admin0, "data/interface/title", "admin0.tga", 220, 64);
+        CTexture::CreateFromFile(admin1, "data/interface/title", "admin1.tga", 220, 64);
+        CTexture::CreateFromFile(admin2, "data/interface/title", "admin2.tga", 220, 64);
+        CTexture::CreateFromFile(admin3, "data/interface/title", "admin3.tga", 220, 64);
+        CTexture::CreateFromFile(admin4, "data/interface/title", "admin4.tga", 220, 64);
+        CTexture::CreateFromFile(admin5, "data/interface/title", "admin5.tga", 220, 64);
+        CTexture::CreateFromFile(admin6, "data/interface/title", "admin6.tga", 220, 64);
+        CTexture::CreateFromFile(admin7, "data/interface/title", "admin7.tga", 220, 64);
+        CTexture::CreateFromFile(admin8, "data/interface/title", "admin8.tga", 220, 64);
+        CTexture::CreateFromFile(admin9, "data/interface/title", "admin9.tga", 220, 64);
+        CTexture::CreateFromFile(admin10, "data/interface/title", "admin10.tga", 220, 64);
+        CTexture::CreateFromFile(admin11, "data/interface/title", "admin11.tga", 220, 64);
+        CTexture::CreateFromFile(admin12, "data/interface/title", "admin12.tga", 220, 64);
+        CTexture::CreateFromFile(admin13, "data/interface/title", "admin13.tga", 220, 64);
+        CTexture::CreateFromFile(admin14, "data/interface/title", "admin14.tga", 220, 64);
+        CTexture::CreateFromFile(admin15, "data/interface/title", "admin15.tga", 220, 64);
+        CTexture::CreateFromFile(admin16, "data/interface/title", "admin16.tga", 220, 64);
+        CTexture::CreateFromFile(admin17, "data/interface/title", "admin17.tga", 220, 64);
+        CTexture::CreateFromFile(admin18, "data/interface/title", "admin18.tga", 220, 64);
+        CTexture::CreateFromFile(admin19, "data/interface/title", "admin19.tga", 220, 64);
 
         if (user->isAdmin) {
             text = "";
-            selectedTexture = adminTex;
+            selectedTexture = adminAnimator.getCurrentFrame();
+            if (!selectedTexture) selectedTexture = adminTex;
         }
         else if (g_pPlayerData && g_pPlayerData->points >= 2000) {
             selectedTexture = vipTex;
