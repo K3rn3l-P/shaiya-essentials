@@ -14,6 +14,7 @@
     <ClInclude Include="include\main.h" />
     <ClInclude Include="include\shaiya\common.h" />
     <ClInclude Include="include\shaiya\include\BillingItemInfo.h" />
+    <ClInclude Include="include\shaiya\include\buff_transparency.h" />
     <ClInclude Include="include\shaiya\include\CCharacterChat.h" />
     <ClInclude Include="include\shaiya\include\CDataFile.h" />
     <ClInclude Include="include\shaiya\include\CMonster.h" />
@@ -26,11 +27,13 @@
     <ClInclude Include="include\shaiya\include\CTexture.h" />
     <ClInclude Include="include\shaiya\include\CWindow.h" />
     <ClInclude Include="include\shaiya\include\ExcItem.h" />
+    <ClInclude Include="include\shaiya\include\gif_animator.h" />
     <ClInclude Include="include\shaiya\include\HexColor.h" />
     <ClInclude Include="include\shaiya\include\CCharacter.h" />
     <ClInclude Include="include\shaiya\include\CItem.h" />
     <ClInclude Include="include\shaiya\include\CNetwork.h" />
     <ClInclude Include="include\shaiya\include\CWorldMgr.h" />
+    <ClInclude Include="include\shaiya\include\IDmobnpc.h" />
     <ClInclude Include="include\shaiya\include\ItemInfo.h" />
     <ClInclude Include="include\shaiya\include\MobInfo.h" />
     <ClInclude Include="include\shaiya\include\SkillInfo.h" />
@@ -48,21 +51,26 @@
     <ClCompile Include="include\shaiya\src\CStaticText.cpp" />
     <ClCompile Include="include\shaiya\src\CTexture.cpp" />
     <ClCompile Include="include\shaiya\src\CWorldMgr.cpp" />
+    <ClCompile Include="include\shaiya\src\CWindow.cpp" />
     <ClCompile Include="src\camera_limit.cpp" />
     <ClCompile Include="src\character.cpp" />
     <ClCompile Include="src\command.cpp" />
     <ClCompile Include="src\custom_game.cpp" />
     <ClCompile Include="src\equipment.cpp" />
     <ClCompile Include="src\exp_view.cpp" />
+    <ClCompile Include="src\IDmobnpc.cpp" />
     <ClCompile Include="src\input.cpp" />
     <ClCompile Include="src\item_icon.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\name_color.cpp" />
+    <ClCompile Include="src\buff_transpatency.cpp" />
     <ClCompile Include="src\packet.cpp" />
     <ClCompile Include="src\patch.cpp" />
     <ClCompile Include="src\quick_slot.cpp" />
+    <ClCompile Include="src\RecreationViewer.cpp" />
     <ClCompile Include="src\static.cpp" />
+    <ClCompile Include="src\StatsColor.cpp" />
     <ClCompile Include="src\title.cpp" />
     <ClCompile Include="src\vehicle.cpp" />
     <ClCompile Include="src\weapon_step.cpp" />
@@ -117,7 +125,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <TargetName>duff</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -168,6 +176,9 @@
       <AdditionalLibraryDirectories>$(OutDir);</AdditionalLibraryDirectories>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
+    <PostBuildEvent>
+      <Command>powershell -ExecutionPolicy Bypass -File "C:\Users\lol1\Documents\A-Best-Installation-GUIDE\100.Code-Project\script\sha256_hashes.ps1"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

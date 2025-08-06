@@ -21,6 +21,11 @@ namespace hook
     void vehicle();
     void weapon_step();
     void window();
+
+	// NUOVE FUNZIONI
+    void stats_color();
+    void recreationviewer();
+    void buff_transparency();
 }
 
 inline int g_showCostumes = false;

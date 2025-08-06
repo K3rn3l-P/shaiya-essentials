@@ -6,6 +6,11 @@
 #include "include/shaiya/include/CDataFile.h"
 #include "include/shaiya/include/HexColor.h"
 #include "include/shaiya/include/ItemInfo.h"
+
+// NUOVE FUNZIONI
+#include <chrono>
+#include <cmath>
+
 using namespace shaiya;
 
 namespace name_color
@@ -74,6 +79,73 @@ namespace name_color
         { 60, HexColor::MistyRose }
     };
 
+	// NUOVE FUNZIONI
+	// Funzione per convertire HSV in RGB
+    struct RGB { int r, g, b; };
+
+    static RGB HSVtoRGB(float H, float S, float V)
+    {
+        float C = V * S;
+        float Hprime = fmodf(H / 60.0f, 6.0f);
+        float X = C * (1.0f - fabsf(fmodf(Hprime, 2.0f) - 1.0f));
+        float m = V - C;
+
+        float r1, g1, b1;
+        if (0.0f <= Hprime && Hprime < 1.0f) { r1 = C; g1 = X; b1 = 0; }
+        else if (Hprime < 2.0f) { r1 = X; g1 = C; b1 = 0; }
+        else if (Hprime < 3.0f) { r1 = 0; g1 = C; b1 = X; }
+        else if (Hprime < 4.0f) { r1 = 0; g1 = X; b1 = C; }
+        else if (Hprime < 5.0f) { r1 = X; g1 = 0; b1 = C; }
+        else { r1 = C; g1 = 0; b1 = X; }
+
+        return RGB{
+            static_cast<int>((r1 + m) * 255),
+            static_cast<int>((g1 + m) * 255),
+            static_cast<int>((b1 + m) * 255)
+        };
+    }
+	// Funzione per ottenere un colore multicolore che cambia nel tempo
+    HexColor get_multicolor()
+    {
+        constexpr float cycleDurationMs = 12000.0f;
+        constexpr float saturation = 0.9f;
+        constexpr float value = 0.95f;
+
+        auto now = std::chrono::steady_clock::now();
+        float ms = static_cast<float>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                now.time_since_epoch()
+            ).count()
+            );
+
+        float hue = fmodf((ms / cycleDurationMs) * 360.0f, 360.0f);
+
+        float C = value * saturation;
+        float Hprime = fmodf(hue / 60.0f, 6.0f);
+        float X = C * (1.0f - fabsf(fmodf(Hprime, 2.0f) - 1.0f));
+        float m = value - C;
+
+        float r = 0, g = 0, b = 0;
+        if (0 <= Hprime && Hprime < 1) { r = C; g = X; b = 0; }
+        else if (Hprime < 2) { r = X; g = C; b = 0; }
+        else if (Hprime < 3) { r = 0; g = C; b = X; }
+        else if (Hprime < 4) { r = 0; g = X; b = C; }
+        else if (Hprime < 5) { r = X; g = 0; b = C; }
+        else { r = C; g = 0; b = X; }
+
+        auto gamma = [](float c, float m) -> uint32_t {
+            float corrected = powf(c + m, 0.9f);
+            return static_cast<uint32_t>(corrected * 255.0f);
+            };
+
+        uint32_t red = gamma(r, m);
+        uint32_t green = gamma(g, m);
+        uint32_t blue = gamma(b, m);
+
+        return HexColor(0xFF000000 | (red << 16) | (green << 8) | blue);
+    }
+
+	// Funzione per ottenere il colore del nome del mob in base al livello
     HexColor get_mob_name_color(int mobLevel)
     {
         int gap = mobLevel - g_pPlayerData->level;
@@ -102,30 +174,31 @@ namespace name_color
 
         return HexColor::White;
     }
-
+	// Funzione per ottenere il colore del nome dell'elmo dell'utente
     D3DCOLOR get_helmet_name_color(CCharacter* user)
     {
         auto helmetType = user->equipment.type[EquipmentSlot::Helmet];
         auto helmetTypeId = user->equipment.typeId[EquipmentSlot::Helmet];
-
         auto itemInfo = CDataFile::GetItemInfo(helmetType, helmetTypeId);
-        if (!itemInfo)
-            return 0;
 
-        if (!itemInfo->range)
-            return 0;
+        if (!itemInfo || itemInfo->range == 0)
+            return std::to_underlying(HexColor::White);
 
-        for (const auto& [range, color] : g_itemRangeToColor)
+        auto it = g_itemRangeToColor.find(itemInfo->range);
+        if (it != g_itemRangeToColor.end())
         {
-            if (range == itemInfo->range)
-                return std::to_underlying(color);
+            if (itemInfo->range == 1)
+                return std::to_underlying(get_multicolor());
+            else
+                return std::to_underlying(it->second);
         }
 
-        return 0;
+        return std::to_underlying(HexColor::White);
     }
 }
 
-void __declspec(naked) naked_0x4E50D0()
+// Hook colore nome mob
+extern "C" void __declspec(naked) naked_0x4E50D0()
 {
     __asm
     {
@@ -133,52 +206,49 @@ void __declspec(naked) naked_0x4E50D0()
         push edi
         push esi
 
-        movzx eax,word ptr[esp+0x10]
+        movzx eax, word ptr[esp + 0x10]
         push eax
         call name_color::get_mob_name_color
-        add esp,0x4
+        add  esp, 4
 
         pop esi
         pop edi
         pop ebx
-
         retn 0x4
     }
 }
 
-unsigned u0x453821 = 0x453821;
-void __declspec(naked) naked_0x45381B()
+// Hook colore nome giocatori/admin
+static unsigned u0x453821 = 0x453821;
+
+extern "C" void __declspec(naked) naked_0x45380C()
 {
     __asm
     {
-        push ebx
-        push edi
+        movzx eax, byte ptr[esi + 0x2D4] // isAdmin
+        test eax, eax
+        je not_admin
+
+        call name_color::get_multicolor
+        mov ebp, eax
+        jmp done
+
+        not_admin :
         push esi
+            call name_color::get_helmet_name_color
+            add  esp, 4
+            test eax, eax
+            je done
+            mov ebp, eax
 
-        push esi // user
-        call name_color::get_helmet_name_color
-        add esp,0x4
-        test eax,eax
-
-        pop esi
-        pop edi
-        pop ebx
-
-        je original
-
-        mov ebp,eax
-
-        original:
-        cmp dword ptr ds:[0x22AA7F8],ebx
-        jmp u0x453821
+            done :
+        cmp dword ptr ds : [0x22AA7F8] , ebx
+            jmp u0x453821
     }
 }
 
 void hook::name_color()
 {
-    // mobs
-    util::detour((void*)0x4E50D0, naked_0x4E50D0, 5);
-    // users
-    util::detour((void*)0x45381B, naked_0x45381B, 6);
+    util::detour((void*)0x4E50D0, naked_0x4E50D0, 5); // mob name color
+    util::detour((void*)0x45380C, naked_0x45380C, 6); // admin + user name color
 }
-

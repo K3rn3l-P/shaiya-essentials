@@ -14,6 +14,9 @@ namespace shaiya
         D2D_POINT_2U leftMouseClickPos;  //0x18
         bool32_t visible;                //0x20
         // 0x24
+
+        // NUOVA FUNZIONE
+        static void UpdateWindowTitle(); // Dichiarazione della funzione statica
     };
     #pragma pack(pop) 
 

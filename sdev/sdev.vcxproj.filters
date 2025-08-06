@@ -107,6 +107,15 @@
     <ClInclude Include="include\shaiya\include\CSheetStatus.h">
       <Filter>include\shaiya\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\shaiya\include\buff_transparency.h">
+      <Filter>include\shaiya\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shaiya\include\IDmobnpc.h">
+      <Filter>include\shaiya\include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\shaiya\include\gif_animator.h">
+      <Filter>include\shaiya\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -186,6 +195,21 @@
     </ClCompile>
     <ClCompile Include="src\patch.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\buff_transpatency.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\IDmobnpc.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RecreationViewer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\StatsColor.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="include\shaiya\src\CWindow.cpp">
+      <Filter>include\shaiya\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
