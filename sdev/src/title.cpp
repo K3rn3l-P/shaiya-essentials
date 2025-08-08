@@ -167,6 +167,7 @@ namespace title
         CTexture::CreateFromFile(admin19, "data/interface/title", "admin19.tga", 220, 64);
     }
 
+
     void hook(CCharacter* user, float x, float y, float extrusion)
     {
         LoadImages(); // load textures
@@ -219,11 +220,11 @@ namespace title
         if (selectedTexture && selectedTexture->texture)
         {
 			// Centra l'immagine
-            float posX = x - (imageWidth / 2.0f) + 30.0f; //prova a cambiare qquesto per la gif (centratura)
+            float posX = x - (imageWidth / 2.0f) + 28.0f; //prova a cambiare questo per la gif (centratura)
 			// Mantieni la posizione Y originale meno l'offset dell'immagine
             float posY = y - imageYOffset;
 			// Renderizza l'immagine
-            CTexture::Render(selectedTexture, long(posX), long(posY), 0.10F);
+			CTexture::Render(selectedTexture, long(posX), long(posY), 0.10F); // Funzione di rendering dell'immagine
         }
 
         // Render testo mantello (sempre se trovato)
@@ -233,7 +234,7 @@ namespace title
             {
                 user->title.text = CStaticText::Create(text);
                 auto w = CStaticText::GetTextWidth(text);
-                user->title.pointX = static_cast<int>(w * 0.5);
+                user->title.pointX = static_cast<int>(w * 0.5); // Centra il testo
             }
 
             if (user->title.text)
@@ -249,6 +250,7 @@ namespace title
             user->title.text->texture->Release();
             user->title.text = nullptr;
         }
+
     }
 
     void reset(CCharacter* user)
