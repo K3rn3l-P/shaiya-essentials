@@ -1,19 +1,27 @@
-# Shaiya Essentials
+# Shaiya Essentials (archived fork)
+
+Fork of [Spelunkern/shaiya-essentials](https://github.com/Spelunkern/shaiya-essentials) (itself
+archived), a client-side DLL for 6.4 PT client 182 modifications. Dormant since August 2025, no
+active development.
+
+## What this adds
+
+Reconstructed several internal client engine classes (`CWorldMgr`, `CMonster`, `CNetwork`,
+`CTexture`, `CWindow`, `CQuickSlot`, `CStaticText`, `CDataFile`) from the compiled binary — typed
+wrappers around hardcoded function addresses recovered via disassembly. Reorganized the
+reverse-engineered headers under a single `include/shaiya/include/` tree, consistent with the
+other Shaiya forks on this account.
 
 ## Environment
 
-Windows 10
+Windows 10, Visual Studio 2022, C++23, DirectX SDK (June 2010).
 
-Visual Studio 2022
+## Attribution
 
-C++ 23
+The base client library and build prerequisites are
+[Spelunkern/shaiya-essentials](https://github.com/Spelunkern/shaiya-essentials), shared as-is by
+the author, no license attached.
 
-## Prerequisites
+## State
 
-[Microsoft Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x86.exe)
-
-[Microsoft DirectX SDK (June 2010)](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
-
-## Documentation
-
-This library is for 6.4 PT client 182 modifications. The DirectX SDK installer should create a system environment variable named `DXSDK_DIR` that specifies the installation directory.
+Archived, no further changes planned.
